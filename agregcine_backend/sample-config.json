@@ -1,9 +1,8 @@
 {
     "server": {
         "address": "127.0.0.1",
-        "api_port": 3001,
-        "front_port": 3000,
-        "static_files": "static"
+        "port": 3000,
+        "static_files": "../agregcine_frontend/dist"
     },
     "database": {
         "file": "movies_db"
