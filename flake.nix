@@ -24,9 +24,23 @@
           ];
           system = system;
         };
+        pkgsCross = import nixpkgs {
+          overlays = [
+            (import rust-overlay)
+          ];
+          system = system;
+          crossSystem.config = "aarch64-unknown-linux-gnu";
+        };
       in
       {
         packages.agregcine_backend = pkgs.rustPlatform.buildRustPackage {
+          pname = "agregcine_backend";
+          version = "0.1.0";
+          src = ./agregcine_backend;
+          cargoLock.lockFile = ./agregcine_backend/Cargo.lock;
+        };
+
+        packages.agregcine_backend-aarch64 = pkgsCross.rustPlatform.buildRustPackage {
           pname = "agregcine_backend";
           version = "0.1.0";
           src = ./agregcine_backend;
