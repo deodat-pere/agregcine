@@ -12,7 +12,7 @@ axum-server = { version = "0.7.1", features = ["tls-rustls"] }
 chrono = "0.4.38"
 futures = "0.3.31"
 kv = { version = "0.24.0", features = ["json-value"] }
-reqwest = { version = "0.12.8", features = ["json"] }
+reqwest = { version = "0.12.8", features = ["json", "rustls-tls"], default-features = false }
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.128"
 tokio = { version = "1.40.0", features = ["full"] }
