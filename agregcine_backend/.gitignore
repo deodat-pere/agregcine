@@ -1,0 +1,7 @@
+target
+/logs
+/test_logs
+/movies_db
+config.json
+config-test.json
+/static

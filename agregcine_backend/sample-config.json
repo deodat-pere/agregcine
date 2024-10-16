@@ -1,0 +1,29 @@
+{
+    "server": {
+        "address": "127.0.0.1",
+        "api_port": 3001,
+        "front_port": 3000,
+        "static_files": "static"
+    },
+    "database": {
+        "file": "movies_db"
+    },
+    "log": {
+        "dir": "logs",
+        "level": "INFO"
+    },
+    "cinemas": [
+        {
+            "id": "P0084",
+            "name": "Cinéma Arvor"
+        },
+        {
+            "id": "P0091",
+            "name": "Pathé Rennes"
+        },
+        {
+            "id": "P0102",
+            "name": "Ciné TNB"
+        }
+    ]
+}
