@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::net::{Ipv4Addr, SocketAddr, TcpListener};
-use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
 use axum::http::Method;
@@ -46,7 +45,7 @@ pub async fn spawn_server(
 /// [`Result<(),ServerError>`]<()>
 pub async fn spawn_server_with_listener(
     listener: TcpListener,
-    _config: Config,
+    config: Config,
     movies: Arc<Mutex<HashMap<u32, InfoGlob>>>,
 ) -> Result<(), ServerError> {
     let routes: Router = Router::new()
@@ -62,7 +61,10 @@ pub async fn spawn_server_with_listener(
         // allow requests from any origin
         .allow_origin(Any);
 
-    let app = Router::new().nest("/api", routes).layer(cors);
+    let app = Router::new()
+        .nest("/api", routes)
+        .layer(cors)
+        .nest_service("/", ServeDir::new(config.server.static_files));
 
     println!("Running...");
     tracing::info!("Running...");
@@ -71,21 +73,4 @@ pub async fn spawn_server_with_listener(
         .serve(app.into_make_service())
         .await
         .map_err(|_| ServerError::ServerRun)
-}
-
-/// Create a Router and Spawn the HTTP server using a TcpListener
-///
-/// ## Parameters
-/// * `listener` - [`TcpListener`]
-/// * `_config` - [`Config`] server config (maybe used later for init a database client or else...)
-/// * `movies` - [`Arc<Mutex<HashMap<u32,InfoGlob>>>`] List of movies
-///
-/// ## Returned value
-/// [`Result<(),ServerError>`]<()>
-pub async fn serve_static_files(static_files: PathBuf, address: Ipv4Addr, port: u16) {
-    let addr = SocketAddr::from((address, port));
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    let app = Router::new().nest_service("/", ServeDir::new(static_files));
-    tracing::debug!("listening on {}", listener.local_addr().unwrap());
-    axum::serve(listener, app).await.unwrap();
 }

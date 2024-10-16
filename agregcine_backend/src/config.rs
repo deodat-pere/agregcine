@@ -30,10 +30,8 @@ pub struct Server {
     /// * `address` - [`Ipv4Addr`] the ip address
     #[serde(deserialize_with = "deserialize_string_to_ipv4")]
     pub address: Ipv4Addr,
-    /// * `api_port` - [`u16`] the port to listen to for the api
-    pub api_port: u16,
-    /// * `front_port` - [`u16`] the port to listen to for the front
-    pub front_port: u16,
+    /// * `port` - [`u16`] the port to listen on
+    pub port: u16,
     /// * `static_files` - [`PathBuf`] static files directory
     pub static_files: PathBuf,
 }

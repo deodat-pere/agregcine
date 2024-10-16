@@ -1,7 +1,6 @@
 use clap::Parser;
 
 use scraper::thread::{refresh_movies, wait};
-use server::serve_static_files;
 use tracing::metadata::LevelFilter;
 
 use std::collections::HashMap;
@@ -63,20 +62,10 @@ async fn main() -> Result<(), ServerError> {
         wait(args.reload, config_clone, mm_clone.clone(), &store).await;
     });
 
-    let config_clone = config.clone();
-    tokio::spawn(async move {
-        serve_static_files(
-            config.server.static_files,
-            config.server.address,
-            config.server.front_port,
-        )
-        .await;
-    });
-
     spawn_server(
         config.server.address,
-        config.server.api_port,
-        config_clone,
+        config.server.port,
+        config,
         movies_mutex.clone(),
     )
     .await
