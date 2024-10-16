@@ -22,7 +22,7 @@
           overlays = [
             (import rust-overlay)
           ];
-          system = "x86_64-linux";
+          system = system;
         };
       in
       {
