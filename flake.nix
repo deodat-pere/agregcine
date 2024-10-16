@@ -4,8 +4,9 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+
     rust-overlay.url = "github:oxalica/rust-overlay";
-    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+    crane.url = "github:ipetkov/crane";
   };
 
   outputs =
@@ -13,38 +14,35 @@
       nixpkgs,
       flake-utils,
       rust-overlay,
+      crane,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = import nixpkgs {
-          overlays = [
-            (import rust-overlay)
-          ];
           system = system;
         };
         pkgsCross = import nixpkgs {
+          system = system;
+          crossSystem = "aarch64-linux";
           overlays = [
             (import rust-overlay)
           ];
-          system = system;
-          crossSystem.config = "aarch64-unknown-linux-gnu";
-        };
-      in
-      {
-        packages.agregcine_backend = pkgs.rustPlatform.buildRustPackage {
-          pname = "agregcine_backend";
-          version = "0.1.0";
-          src = ./agregcine_backend;
-          cargoLock.lockFile = ./agregcine_backend/Cargo.lock;
         };
 
-        packages.agregcine_backend-aarch64 = pkgsCross.rustPlatform.buildRustPackage {
-          pname = "agregcine_backend";
-          version = "0.1.0";
-          src = ./agregcine_backend;
-          cargoLock.lockFile = ./agregcine_backend/Cargo.lock;
+        craneLib = (crane.mkLib pkgsCross).overrideToolchain (p: p.rust-bin.stable.latest.default);
+      in
+      {
+        packages.agregcine_backend = craneLib.buildPackage {
+          src = craneLib.cleanCargoSource ./agregcine_backend;
+          strictDeps = true;
+
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER = "qemu-aarch64";
+          CARGO_BUILD_TARGET = "aarch64-unknown-linux-gnu";
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER =
+            with pkgsCross.pkgsHostHost;
+            "${stdenv.cc.targetPrefix}cc";
         };
 
         packages.agregcine_frontend = pkgs.buildNpmPackage {
