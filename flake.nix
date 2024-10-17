@@ -45,22 +45,44 @@
             "${stdenv.cc.targetPrefix}cc";
         };
 
-        packages.agregcine_frontend = pkgs.buildNpmPackage {
-          name = "agregcine_frontend";
+        packages.agregcine_frontend =
+          { base_url, presentation_text }:
+          let
+            config_json = pkgs.writeText "config.json" (
+              builtins.toJSON {
+                baseUrl = base_url;
+                presentationText = presentation_text;
+              }
+            );
 
-          src = ./agregcine_frontend;
-          npmDepsHash = "sha256-M1cke/RVzHAwSjNr/zFx39DjUK2mXt2w82zgjAFT5s0=";
+            sources = pkgs.stdenv.mkDerivation {
+              name = "agregcine_frontend_sources";
+              src = ./agregcine_frontend;
 
-          installPhase = ''
-            mkdir -p $out/static
-            npm run build
-            cp -r dist $out/dist
-          '';
+              installPhase = ''
+                mkdir -p $out
+                cp -r $src/* $out
+                cp ${config_json} $out/config.json
+              '';
 
-          buildInputs = [
-            pkgs.nodejs_18
-          ];
-        };
+            };
+          in
+          pkgs.buildNpmPackage {
+            name = "agregcine_frontend";
+
+            src = sources;
+            npmDepsHash = "sha256-M1cke/RVzHAwSjNr/zFx39DjUK2mXt2w82zgjAFT5s0=";
+
+            installPhase = ''
+              mkdir -p $out/static
+              npm run build
+              cp -r dist $out/dist
+            '';
+
+            buildInputs = [
+              pkgs.nodejs_18
+            ];
+          };
       }
     );
 }
