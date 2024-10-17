@@ -208,7 +208,7 @@ function Showings(Props: ShowProps) {
 }
 
 function parse_date(s: string) {
-    var jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+    var jours = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
     var mois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
     var b = s.split(/\D+/);
     var date = new Date(Date.UTC(Number(b[0]), Number(b[1]) - 1, Number(b[2])));
