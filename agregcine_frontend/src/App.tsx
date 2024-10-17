@@ -5,9 +5,8 @@ import Album from './Album';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NotFound from './NotFound';
 import Movie from './Movie';
-import * as config from '../config.json';
 
-export const baseUrl = config.baseUrl;
+export const baseUrl = import.meta.env.VITE_API_URL;
 
 function Footer() {
   return (
