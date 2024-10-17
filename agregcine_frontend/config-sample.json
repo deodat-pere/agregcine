@@ -1,3 +1,4 @@
 {
-    "baseUrl": "https://agregcine.doyencollas.fr/api/"
+    "baseUrl": "http://localhost:3000/api/",
+    "presentationText": "Découvrez les films diffusés à Rennes cette semaine!"
 }

@@ -13,6 +13,8 @@ import theme from './theme';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { baseUrl } from './App';
+import * as config from '../config.json';
+
 
 
 
@@ -132,7 +134,7 @@ export default function Album() {
                             Films de la semaine
                         </Typography>
                         <Typography variant="h5" align="center" color="text.secondary" paragraph>
-                            Découvrez les films diffusés à Rennes cette semaine!
+                            {config.presentationText}
                         </Typography>
                     </Container>
                 </Box>

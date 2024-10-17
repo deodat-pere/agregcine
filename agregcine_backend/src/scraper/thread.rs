@@ -37,7 +37,7 @@ pub async fn wait(
 
         let next_wake = (now + chrono::Duration::days(1))
             .date_naive()
-            .and_hms_opt(0, 30, 0)
+            .and_hms_opt(0, 1, 0)
             .expect("This should not crash");
 
         let duration = next_wake

@@ -24,7 +24,7 @@ function Footer() {
         >
           Nous ne sommes affiliés à aucun cinéma.
           Ce site n'a pas de vocation commerciale, et a pour unique but de permettre
-          de visualiser simplement les films diffusés dans les cinémas Rennais.
+          de visualiser simplement les films diffusés dans les cinémas de proximité.
         </Typography>
       </Box>
     </Container>
