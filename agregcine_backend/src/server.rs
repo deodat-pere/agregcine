@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 use axum::http::Method;
 use axum::{routing::get, Router};
 use tower_http::cors::{Any, CorsLayer};
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
 
 use crate::config::Config;
 use crate::error::ServerError;
@@ -61,10 +61,21 @@ pub async fn spawn_server_with_listener(
         // allow requests from any origin
         .allow_origin(Any);
 
+    let static_dir = ServeDir::new(config.server.static_files.clone()).not_found_service(
+        ServeFile::new(format!(
+            "{}/index.html",
+            config.server.static_files.as_path().display()
+        )),
+    );
+    tracing::info!(
+        "{}/index.html",
+        config.server.static_files.as_path().display()
+    );
     let app = Router::new()
         .nest("/api", routes)
         .layer(cors)
-        .nest_service("/", ServeDir::new(config.server.static_files));
+        .nest_service("/", static_dir.clone())
+        .nest_service("/movie/:id", static_dir);
 
     println!("Running...");
     tracing::info!("Running...");

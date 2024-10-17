@@ -94,7 +94,7 @@ export default function MoviePage() {
                                     {movie.name}
                                 </Typography>
                                 <Typography color="text.secondary">
-                                    {movie.runtime} - {movie.release_date}
+                                    {movie.runtime}
                                 </Typography>
 
                                 <Typography> <div dangerouslySetInnerHTML={{ __html: movie.summary }} /> </Typography>
