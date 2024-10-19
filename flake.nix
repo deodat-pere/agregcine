@@ -71,7 +71,7 @@
             name = "agregcine_frontend";
 
             src = sources;
-            npmDepsHash = "sha256-M1cke/RVzHAwSjNr/zFx39DjUK2mXt2w82zgjAFT5s0=";
+            npmDepsHash = "sha256-3OKzeY3kXAvNWV2V0Gxvxtn8iWAwmplgnrUbn2C7k1E=";
 
             installPhase = ''
               mkdir -p $out/static
