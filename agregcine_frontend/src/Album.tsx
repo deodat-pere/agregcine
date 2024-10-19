@@ -1,6 +1,5 @@
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -9,11 +8,14 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { ThemeProvider } from '@mui/material/styles';
+import Modal from '@mui/material/Modal';
 import theme from './theme';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { baseUrl } from './App';
 import * as config from '../config.json';
+import { get_image } from './utils';
+import { MovieDescription } from './MovieDescription';
 
 
 
@@ -27,17 +29,8 @@ export type MovieProps = {
     release_date: string;
 }
 
-export function get_image(image_link: string): string {
-    if (image_link.length == 0) {
-        return "https://fr.web.img3.acsta.net/commons/v9/common/empty/empty_portrait.png"
-    } else {
-        return image_link
-    }
-}
-
 function MovieCard(Props: MovieProps): JSX.Element {
-    const [showMore, setShowMore] = useState(false);
-
+    const [open, setOpen] = useState<boolean>(false);
     let navigate = useNavigate();
     const routeChange = () => {
         let path = `/movie/` + Props.id.toString();
@@ -65,39 +58,53 @@ function MovieCard(Props: MovieProps): JSX.Element {
                     {Props.runtime}
                 </Typography>
                 <Box>
-                    {showMore ?
-                        <Typography> <div dangerouslySetInnerHTML={{ __html: Props.summary }} /> </Typography> :
-                        <Typography sx={{
-                            backgroundcolor: "primary",
-                            backgroundImage: `linear-gradient(180deg, #000000, #C0C0C0)`,
-                            backgroundSize: "100%",
-                            backgroundRepeat: "repeat",
-                            backgroundClip: "text",
-                            WebkitBackgroundClip: "text",
-                            WebkitTextFillColor: "transparent"
-                        }}><div dangerouslySetInnerHTML={{ __html: `${Props.summary.substring(0, 110).concat("...")}` }} />
-                        </Typography>}
+                    <Typography sx={{
+                        backgroundcolor: "primary",
+                        backgroundImage: `linear-gradient(180deg, #000000, #C0C0C0)`,
+                        backgroundSize: "100%",
+                        backgroundRepeat: "repeat",
+                        backgroundClip: "text",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent"
+                    }}><div dangerouslySetInnerHTML={{ __html: `${Props.summary.substring(0, 110).concat("...")}` }} />
+                    </Typography>
                     <Box
-                        //margin
                         display="flex"
                         justifyContent="flex-end"
                         alignItems="flex-end"
                     >
-                        <Button size="small" onClick={() => setShowMore(!showMore)}>
-                            {showMore ? "Réduire" : "Plus"}
+                        <Button size="small" onClick={() => setOpen(true)}>
+                            Plus
                         </Button>
+                        <Modal
+                            open={open}
+                            onClose={() => setOpen(false)}
+                            aria-labelledby="modal-modal-title"
+                            aria-describedby="modal-modal-description"
+                        >
+                            <Card sx={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                width: '80%',
+                                marginBottom: 1,
+                                bgcolor: 'background.paper',
+                                boxShadow: 24,
+                            }}>
+                                <MovieDescription isPopup={true} movie={Props} />
+                            </Card>
+                        </Modal>
+
                     </Box>
                 </Box>
             </CardContent>
-            <CardActions>
-                <Button size="medium" onClick={() => routeChange()}>Voir les séances</Button>
-            </CardActions>
         </Card>
     );
 }
 
 
-export default function Album() {
+export function Album() {
     const [movies, setMovies] = useState<MovieProps[]>([]);
 
     useEffect(() => {
@@ -143,8 +150,7 @@ export default function Album() {
                     <Grid container spacing={4} columns={12}>
                         {movies.sort((a, b) => (a.id - b.id)).map((movie: MovieProps) => (
                             <Grid item key={movie.id} xs={12} sm={6} md={4}>
-                                <MovieCard id={movie.id} name={movie.name} image_link={movie.image_link}
-                                    summary={movie.summary} release_date={movie.release_date} runtime={movie.runtime} />
+                                <MovieCard {...movie} />
                             </Grid>
                         ))}
                     </Grid>

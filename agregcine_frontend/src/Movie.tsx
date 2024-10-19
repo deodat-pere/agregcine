@@ -1,6 +1,4 @@
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -9,12 +7,14 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { get_image, MovieProps } from './Album';
+import { MovieProps } from './Album';
 import NotFound from './NotFound';
 import { IconButton } from '@mui/material';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import Divider from '@mui/material/Divider';
 import { baseUrl } from './App';
+import { default_movie_props } from './utils';
+import { MovieDescription } from './MovieDescription';
 
 type ShowingProps = {
     cine: string,
@@ -25,14 +25,7 @@ export default function MoviePage() {
     const { id } = useParams();
     const [isError, setIsError] = useState<boolean>(false);
 
-    const [movie, setMovie] = useState<MovieProps>({
-        name: "",
-        runtime: "",
-        summary: "",
-        image_link: "",
-        release_date: "",
-        id: Number(id),
-    });
+    const [movie, setMovie] = useState<MovieProps>(default_movie_props);
 
     let navigate = useNavigate();
     const routeChange = () => {
@@ -71,11 +64,15 @@ export default function MoviePage() {
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <Box width='100%'>
-                    <IconButton color="default" size="large" onClick={() => routeChange()}>
-                        <ArrowBackOutlinedIcon />
-                    </IconButton>
-                    <MovieCard {...movie} />
-                    <Showings id={movie.id.toString()} />
+                    <Box paddingBottom={2}>
+                        <IconButton color="default" size="large" onClick={() => routeChange()}>
+                            <ArrowBackOutlinedIcon />
+                        </IconButton>
+                    </Box>
+                    <MovieDescription movie={movie} isPopup={false} />
+                    <Box paddingTop={6}>
+                        <Showings id={movie.id.toString()} />
+                    </Box>
                 </Box>
             </ThemeProvider >
         );
@@ -87,48 +84,7 @@ export default function MoviePage() {
 
 }
 
-function MovieCard(movie: MovieProps) {
 
-    return (
-        <Box
-            sx={{
-                bgcolor: 'background.paper',
-                pt: 2,
-                pb: 6,
-                display: 'flex',
-                flexDirection: 'row',
-                width: 'lg'
-            }}
-        >
-            <Card
-                sx={{ width: '20%', display: 'flex', flexDirection: 'column' }}
-            >
-                <CardMedia
-                    component="div"
-                    sx={{
-                        // 16:9
-                        pt: '125%',
-                    }}
-                    image={get_image(movie.image_link)}
-                />
-            </Card>
-            <Card
-                sx={{ width: '80%', display: 'flex', flexDirection: 'column' }}
-            >
-                <CardContent >
-                    <Typography gutterBottom variant="h5" component="h2">
-                        {movie.name}
-                    </Typography>
-                    <Typography color="text.secondary">
-                        {movie.runtime}
-                    </Typography>
-
-                    <Typography> <div dangerouslySetInnerHTML={{ __html: movie.summary }} /> </Typography>
-                </CardContent>
-            </Card >
-        </Box>
-    );
-}
 
 
 type ShowProps = {

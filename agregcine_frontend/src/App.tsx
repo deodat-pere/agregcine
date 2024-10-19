@@ -1,7 +1,7 @@
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Album from './Album';
+import { Album } from './Album';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NotFound from './NotFound';
 import Movie from './Movie';

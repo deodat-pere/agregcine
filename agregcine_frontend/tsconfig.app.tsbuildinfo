@@ -1,1 +1,1 @@
-{"root":["./src/Album.tsx","./src/App.tsx","./src/Movie.tsx","./src/NotFound.tsx","./src/main.tsx","./src/theme.ts","./src/vite-env.d.ts"],"version":"5.6.3"}
+{"root":["./src/Album.tsx","./src/App.tsx","./src/Movie.tsx","./src/MovieDescription.tsx","./src/NotFound.tsx","./src/main.tsx","./src/theme.ts","./src/utils.ts","./src/vite-env.d.ts"],"version":"5.6.3"}
