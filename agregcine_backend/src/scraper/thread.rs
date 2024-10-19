@@ -28,7 +28,7 @@ pub async fn wait(
     if reload || empty {
         match refresh(&config, movies_mutex.clone(), store).await {
             Ok(_) => (),
-            Err(e) => warn!("{e:?}"),
+            Err(e) => warn!("Failed refresh: {e:?}"),
         };
     }
 
@@ -51,7 +51,7 @@ pub async fn wait(
 
         match refresh(&config, movies_mutex.clone(), store).await {
             Ok(_) => (),
-            Err(e) => warn!("{e:?}"),
+            Err(e) => warn!("Failed refresh: {e:?}"),
         };
     }
 }
@@ -77,7 +77,7 @@ pub async fn refresh(
             if !value.dates.is_empty() {
                 let _ = bucket
                     .set(&key, &kv::Json(value))
-                    .inspect_err(|e| warn!("Error inserting movie {e:?}"));
+                    .inspect_err(|e| warn!("Error inserting movie: {e:?}"));
             } else {
                 warn!("Movie {} has no showtimes", value.movie.title);
             }
@@ -85,7 +85,7 @@ pub async fn refresh(
 
         let _ = bucket
             .flush()
-            .inspect_err(|e| warn!("Error flushing to disk {e}"));
+            .inspect_err(|e| warn!("Error flushing to disk: {e}"));
     }
 
     {

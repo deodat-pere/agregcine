@@ -68,7 +68,7 @@ pub async fn spawn_server_with_listener(
         )),
     );
     tracing::info!(
-        "{}/index.html",
+        "Serving static files: {}/index.html",
         config.server.static_files.as_path().display()
     );
     let app = Router::new()

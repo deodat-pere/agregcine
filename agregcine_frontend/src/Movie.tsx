@@ -9,7 +9,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { MovieProps } from './Album';
+import { get_image, MovieProps } from './Album';
 import NotFound from './NotFound';
 import { IconButton } from '@mui/material';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
@@ -22,16 +22,23 @@ type ShowingProps = {
 }
 
 export default function MoviePage() {
-    const [movie, setMovie] = useState<MovieProps>();
-
     const { id } = useParams();
+    const [isError, setIsError] = useState<boolean>(false);
+
+    const [movie, setMovie] = useState<MovieProps>({
+        name: "",
+        runtime: "",
+        summary: "",
+        image_link: "",
+        release_date: "",
+        id: Number(id),
+    });
 
     let navigate = useNavigate();
     const routeChange = () => {
         let path = `/`;
         navigate(path);
     }
-
 
     useEffect(() => {
         const api = async () => {
@@ -43,66 +50,33 @@ export default function MoviePage() {
                 if (data.ok) {
                     const jsonData = await data.json();
                     setMovie(jsonData);
+                } else {
+                    setMovie({
+                        name: "",
+                        runtime: "",
+                        summary: "",
+                        image_link: "",
+                        release_date: "",
+                        id: 1,
+                    });
+                    setIsError(true);
                 }
             }
         };
 
         api();
     }, []);
-    if (movie) {
-        function get_image(image_link: string): string {
-            if (image_link.length == 0) {
-                return "https://fr.web.img3.acsta.net/r_600_849/commons/v9/common/empty/empty_portrait.png"
-            } else {
-                return image_link
-            }
-        }
-
+    if (!(isError && movie.id < 0)) {
         return (
             <ThemeProvider theme={theme}>
                 <CssBaseline />
-                <main>
+                <Box width='100%'>
                     <IconButton color="default" size="large" onClick={() => routeChange()}>
                         <ArrowBackOutlinedIcon />
                     </IconButton>
-                    <Box
-                        sx={{
-                            bgcolor: 'background.paper',
-                            pt: 2,
-                            pb: 6,
-                            display: 'flex',
-                            flexDirection: 'row'
-                        }}
-                    >
-                        <Card
-                            sx={{ width: '30%', display: 'flex', flexDirection: 'column' }}
-                        >
-                            <CardMedia
-                                component="div"
-                                sx={{
-                                    // 16:9
-                                    pt: '125%',
-                                }}
-                                image={get_image(movie.image_link)}
-                            />
-                        </Card>
-                        <Card
-                            sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}
-                        >
-                            <CardContent >
-                                <Typography gutterBottom variant="h5" component="h2">
-                                    {movie.name}
-                                </Typography>
-                                <Typography color="text.secondary">
-                                    {movie.runtime}
-                                </Typography>
-
-                                <Typography> <div dangerouslySetInnerHTML={{ __html: movie.summary }} /> </Typography>
-                            </CardContent>
-                        </Card >
-                    </Box>
+                    <MovieCard {...movie} />
                     <Showings id={movie.id.toString()} />
-                </main>
+                </Box>
             </ThemeProvider >
         );
     } else {
@@ -112,6 +86,50 @@ export default function MoviePage() {
     }
 
 }
+
+function MovieCard(movie: MovieProps) {
+
+    return (
+        <Box
+            sx={{
+                bgcolor: 'background.paper',
+                pt: 2,
+                pb: 6,
+                display: 'flex',
+                flexDirection: 'row',
+                width: 'lg'
+            }}
+        >
+            <Card
+                sx={{ width: '20%', display: 'flex', flexDirection: 'column' }}
+            >
+                <CardMedia
+                    component="div"
+                    sx={{
+                        // 16:9
+                        pt: '125%',
+                    }}
+                    image={get_image(movie.image_link)}
+                />
+            </Card>
+            <Card
+                sx={{ width: '80%', display: 'flex', flexDirection: 'column' }}
+            >
+                <CardContent >
+                    <Typography gutterBottom variant="h5" component="h2">
+                        {movie.name}
+                    </Typography>
+                    <Typography color="text.secondary">
+                        {movie.runtime}
+                    </Typography>
+
+                    <Typography> <div dangerouslySetInnerHTML={{ __html: movie.summary }} /> </Typography>
+                </CardContent>
+            </Card >
+        </Box>
+    );
+}
+
 
 type ShowProps = {
     id: string

@@ -2,14 +2,14 @@ use std::collections::{HashMap, HashSet};
 
 use reqwest::{Client, Error};
 use serde_json::Value;
-use tracing::info;
+use tracing::warn;
 
 use crate::config::Cinema;
 use crate::error::ServerError;
 
 pub(crate) async fn do_request(url: String, client: &Client) -> Result<String, Error> {
     let response = client.post(url.clone()).send().await.inspect_err(|_| {
-        info!("Couldn't download url {url}");
+        warn!("Couldn't download url {url}");
     })?;
     response.text().await
 }

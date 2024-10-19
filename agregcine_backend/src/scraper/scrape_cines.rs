@@ -3,7 +3,7 @@ use crate::scraper::extract::{do_request, extract_info};
 use std::collections::HashMap;
 use std::thread::sleep;
 use std::time::Duration;
-use tracing::info;
+use tracing::{info, warn};
 
 use super::extract::InfoGlob;
 
@@ -33,11 +33,10 @@ pub(crate) async fn parse_one_day<'a>(
         cine.id
     );
     let body = do_request(url.clone(), &client).await.map_err(|e| {
-        info!("Error: {e}");
-        info!("On {url}");
+        warn!("Error on {url}: {e}");
     })?;
     info!("cine {}, jour {day_tag}", cine.id);
-    extract_info(body, dict, cine).map_err(|_| info!("On {url}"))
+    extract_info(body, dict, cine).map_err(|_| warn!("Error extracting info on {url}"))
 }
 
 pub(crate) async fn parse_one_cine<'a>(

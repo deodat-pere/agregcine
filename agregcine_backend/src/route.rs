@@ -7,7 +7,7 @@ use axum::response::{IntoResponse, Response};
 use axum::Json;
 
 use serde::{Deserialize, Serialize};
-use tracing::{info, warn};
+use tracing::warn;
 
 use crate::scraper::extract::{InfoGlob, InfoSeance};
 
@@ -18,9 +18,8 @@ pub(crate) async fn up() -> Result<impl IntoResponse, Response> {
 pub(crate) async fn get_movies(
     State(movies): State<Arc<Mutex<HashMap<u32, InfoGlob>>>>,
 ) -> Result<Json<Vec<Movie>>, StatusCode> {
-    info!("Starting get_movies");
     let mov = movies.lock().map_err(|e| {
-        warn!("Could not lock movies Mutex {e}");
+        warn!("Route get_movies: Could not lock movies Mutex {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
     let movies = mov
@@ -41,9 +40,8 @@ pub(crate) async fn get_movie_by_id(
     State(movies): State<Arc<Mutex<HashMap<u32, InfoGlob>>>>,
     Path(id): Path<u32>,
 ) -> Result<Json<Movie>, StatusCode> {
-    info!("Starting get_movie_by_id");
     let mov = movies.lock().map_err(|e| {
-        warn!("Could not lock movies Mutex {e}");
+        warn!("Rout get_movie_by_id: Could not lock movies Mutex {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
     let movie = mov.get(&id).ok_or(StatusCode::NOT_FOUND).map(|m| Movie {
@@ -71,9 +69,8 @@ pub(crate) async fn get_showings(
     State(movies): State<Arc<Mutex<HashMap<u32, InfoGlob>>>>,
     Path(id): Path<u32>,
 ) -> Result<Json<Vec<InfoSeance>>, StatusCode> {
-    info!("Starting get_showings");
     let mov = movies.lock().map_err(|e| {
-        warn!("Could not lock movies Mutex {e}");
+        warn!("Route get_showings: Could not lock movies Mutex {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 

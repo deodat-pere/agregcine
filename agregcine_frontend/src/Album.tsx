@@ -27,6 +27,14 @@ export type MovieProps = {
     release_date: string;
 }
 
+export function get_image(image_link: string): string {
+    if (image_link.length == 0) {
+        return "https://fr.web.img3.acsta.net/commons/v9/common/empty/empty_portrait.png"
+    } else {
+        return image_link
+    }
+}
+
 function MovieCard(Props: MovieProps): JSX.Element {
     const [showMore, setShowMore] = useState(false);
 
@@ -34,14 +42,6 @@ function MovieCard(Props: MovieProps): JSX.Element {
     const routeChange = () => {
         let path = `/movie/` + Props.id.toString();
         navigate(path);
-    }
-
-    function get_image(image_link: string): string {
-        if (image_link.length == 0) {
-            return "https://fr.web.img3.acsta.net/r_600_849/commons/v9/common/empty/empty_portrait.png"
-        } else {
-            return image_link
-        }
     }
 
     return (
