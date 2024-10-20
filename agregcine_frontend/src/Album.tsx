@@ -16,6 +16,7 @@ import { baseUrl } from './App';
 import * as config from '../config.json';
 import { get_image } from './utils';
 import { MovieDescription } from './MovieDescription';
+import Tooltip from '@mui/material/Tooltip';
 
 
 
@@ -32,6 +33,8 @@ export type MovieProps = {
 function MovieCard(Props: MovieProps): JSX.Element {
     const [open, setOpen] = useState<boolean>(false);
     let navigate = useNavigate();
+    var innerHtml: string;
+    if (Props.summary.length > 0) { innerHtml = Props.summary.substring(0, 110).concat("...") } else { innerHtml = "" };
     const routeChange = () => {
         let path = `/movie/` + Props.id.toString();
         navigate(path);
@@ -41,15 +44,19 @@ function MovieCard(Props: MovieProps): JSX.Element {
         <Card
             sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
         >
-            <CardMedia
-                component="div"
-                sx={{
-                    // 16:9
-                    pt: '125%',
-                }}
-                image={get_image(Props.image_link)}
-                onClick={() => routeChange()}
-            />
+            <Tooltip title="Voir les séances">
+                <CardMedia
+                    component="a"
+                    sx={{
+                        pt: '125%',
+                        cursor: 'pointer',
+                    }}
+                    image={get_image(Props.image_link)}
+                    href={"/movie/" + Props.id.toString()}
+                    onClick={() => routeChange()
+                    }
+                />
+            </Tooltip>
             <CardContent sx={{ flexGrow: 1 }}>
                 <Typography gutterBottom variant="h5" component="h2">
                     {Props.name}
@@ -66,7 +73,7 @@ function MovieCard(Props: MovieProps): JSX.Element {
                         backgroundClip: "text",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent"
-                    }}><div dangerouslySetInnerHTML={{ __html: `${Props.summary.substring(0, 110).concat("...")}` }} />
+                    }}><div dangerouslySetInnerHTML={{ __html: `${innerHtml}` }} />
                     </Typography>
                     <Box
                         display="flex"
@@ -89,10 +96,9 @@ function MovieCard(Props: MovieProps): JSX.Element {
                                 transform: 'translate(-50%, -50%)',
                                 width: '80%',
                                 marginBottom: 1,
-                                bgcolor: 'background.paper',
                                 boxShadow: 24,
                             }}>
-                                <MovieDescription isPopup={true} movie={Props} />
+                                <MovieDescription isPopup={true} movie={Props} closePopup={setOpen} />
                             </Card>
                         </Modal>
 

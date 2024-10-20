@@ -13,8 +13,8 @@ import { IconButton } from '@mui/material';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import Divider from '@mui/material/Divider';
 import { baseUrl } from './App';
-import { default_movie_props } from './utils';
 import { MovieDescription } from './MovieDescription';
+import { default_movie_props } from './utils';
 
 type ShowingProps = {
     cine: string,
@@ -50,7 +50,7 @@ export default function MoviePage() {
                         summary: "",
                         image_link: "",
                         release_date: "",
-                        id: 1,
+                        id: -1,
                     });
                     setIsError(true);
                 }
@@ -59,7 +59,7 @@ export default function MoviePage() {
 
         api();
     }, []);
-    if (!(isError && movie.id < 0)) {
+    if (!(isError && movie.id < 0) && id) {
         return (
             <ThemeProvider theme={theme}>
                 <CssBaseline />
@@ -69,9 +69,9 @@ export default function MoviePage() {
                             <ArrowBackOutlinedIcon />
                         </IconButton>
                     </Box>
-                    <MovieDescription movie={movie} isPopup={false} />
+                    <MovieDescription movie={movie} isPopup={false} closePopup={null} />
                     <Box paddingTop={6}>
-                        <Showings id={movie.id.toString()} />
+                        <Showings id={id} />
                     </Box>
                 </Box>
             </ThemeProvider >
