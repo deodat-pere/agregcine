@@ -6,11 +6,14 @@
     flake-utils.url = "github:numtide/flake-utils";
 
     rust-overlay.url = "github:oxalica/rust-overlay";
+    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+
     crane.url = "github:ipetkov/crane";
   };
 
   outputs =
     {
+      self,
       nixpkgs,
       flake-utils,
       rust-overlay,
@@ -31,21 +34,10 @@
           ];
         };
 
-        craneLib = (crane.mkLib pkgsCross).overrideToolchain (p: p.rust-bin.stable.latest.default);
-      in
-      {
-        packages.agregcine_backend = craneLib.buildPackage {
-          src = craneLib.cleanCargoSource ./agregcine_backend;
-          strictDeps = true;
+        craneLib = (crane.mkLib pkgs).overrideToolchain (p: p.rust-bin.stable.latest.default);
+        craneLibCross = (crane.mkLib pkgsCross).overrideToolchain (p: p.rust-bin.stable.latest.default);
 
-          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER = "qemu-aarch64";
-          CARGO_BUILD_TARGET = "aarch64-unknown-linux-gnu";
-          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER =
-            with pkgsCross.pkgsHostHost;
-            "${stdenv.cc.targetPrefix}cc";
-        };
-
-        packages.agregcine_frontend =
+        mkAgregcine_frontend =
           { base_url, presentation_text }:
           let
             config_json = pkgs.writeText "config.json" (
@@ -55,7 +47,7 @@
               }
             );
 
-            sources = pkgs.stdenv.mkDerivation {
+            sourcesWithConfig = pkgs.stdenv.mkDerivation {
               name = "agregcine_frontend_sources";
               src = ./agregcine_frontend;
 
@@ -64,25 +56,106 @@
                 cp -r $src/* $out
                 cp ${config_json} $out/config.json
               '';
-
             };
           in
           pkgs.buildNpmPackage {
             name = "agregcine_frontend";
+            src = sourcesWithConfig;
 
-            src = sources;
-            npmDepsHash = "sha256-3OKzeY3kXAvNWV2V0Gxvxtn8iWAwmplgnrUbn2C7k1E=";
+            npmDeps = pkgs.importNpmLock {
+              npmRoot = sourcesWithConfig;
+            };
+            npmConfigHook = pkgs.importNpmLock.npmConfigHook;
 
             installPhase = ''
-              mkdir -p $out/static
               npm run build
-              cp -r dist $out/dist
+              cp -r dist $out
             '';
-
-            buildInputs = [
-              pkgs.nodejs_18
-            ];
           };
+
+        mkNixosModule =
+          {
+            crossAarch64 ? false,
+          }:
+          {
+            pkgs,
+            config,
+            lib,
+            ...
+          }:
+          {
+            options.services.agregcine = {
+              enable = lib.mkEnableOption "Enable agregcine";
+              presentationText = lib.mkOption {
+                type = lib.types.str;
+                default = "Agregcine";
+                description = "Text to display on the frontend";
+              };
+              backendConfig = lib.mkOption {
+                type = lib.types.attrsOf lib.types.anything;
+                default = { };
+                description = "Configuration for the backend, leave the `server.static_files` option empty";
+              };
+            };
+
+            config = lib.mkIf config.services.agregcine.enable (
+              let
+                agregcine_frontend = mkAgregcine_frontend {
+                  base_url = "/api/";
+                  presentation_text = config.services.agregcine.presentationText;
+                };
+
+                agregcine_backend = (
+                  if crossAarch64 then
+                    self.packages.${system}.agregcine_backend-cross-aarch64
+                  else
+                    self.packages.${system}.agregcine_backend
+                );
+
+                agregcine_backend_config = pkgs.writeText "config.json" (
+                  builtins.toJSON (
+                    lib.recursiveUpdate config.services.agregcine.backendConfig {
+                      server.static_files = agregcine_frontend;
+                    }
+                  )
+                );
+              in
+              {
+                systemd.services.agregcine = {
+                  enable = true;
+                  description = "Agregcine";
+                  wantedBy = [ "multi-user.target" ];
+                  serviceConfig = {
+                    Type = "simple";
+                    ExecStart = "${lib.getExe agregcine_backend} -p ${agregcine_backend_config}";
+                    Restart = "always";
+                  };
+                };
+              }
+            );
+          };
+      in
+      {
+        packages.agregcine_backend = craneLib.buildPackage {
+          src = craneLib.cleanCargoSource ./agregcine_backend;
+          strictDeps = true;
+          meta.mainProgram = "agregcine_backend";
+        };
+
+        packages.agregcine_backend-cross-aarch64 = craneLibCross.buildPackage {
+          src = craneLibCross.cleanCargoSource ./agregcine_backend;
+          strictDeps = true;
+          meta.mainProgram = "agregcine_backend";
+
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER = "qemu-aarch64";
+          CARGO_BUILD_TARGET = "aarch64-unknown-linux-gnu";
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER =
+            with pkgsCross.pkgsHostHost;
+            "${stdenv.cc.targetPrefix}cc";
+        };
+
+        nixosModule = mkNixosModule { };
+        nixosModuleCrossAarch64 = mkNixosModule { crossAarch64 = true; };
       }
     );
 }
