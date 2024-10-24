@@ -17,6 +17,7 @@ import * as config from '../config.json';
 import { get_image } from './utils';
 import { MovieDescription } from './MovieDescription';
 import Tooltip from '@mui/material/Tooltip';
+import { FilterSelector } from './FilterSelector';
 
 
 
@@ -28,6 +29,9 @@ export type MovieProps = {
     summary: string;
     image_link: string;
     release_date: string;
+    is_new: boolean,
+    is_premiere: boolean,
+    is_unique: boolean,
 }
 
 function MovieCard(Props: MovieProps): JSX.Element {
@@ -49,7 +53,11 @@ function MovieCard(Props: MovieProps): JSX.Element {
                     component="a"
                     sx={{
                         pt: '125%',
-                        cursor: 'pointer',
+                        "&:hover": {
+                            cursor: 'pointer',
+                            boxShadow: 10,
+                            transform: "scale(1.01)",
+                        }
                     }}
                     image={get_image(Props.image_link)}
                     href={"/movie/" + Props.id.toString()}
@@ -57,14 +65,14 @@ function MovieCard(Props: MovieProps): JSX.Element {
                     }
                 />
             </Tooltip>
-            <CardContent sx={{ flexGrow: 1 }}>
-                <Typography gutterBottom variant="h5" component="h2">
-                    {Props.name}
-                </Typography>
-                <Typography color="text.secondary">
-                    {Props.runtime}
-                </Typography>
-                <Box>
+            <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", }}>
+                <Box display={"flex"} flexDirection={"column"}>
+                    <Typography gutterBottom variant="h5" component="h2">
+                        {Props.name}
+                    </Typography>
+                    <Typography color="text.secondary">
+                        {Props.runtime}
+                    </Typography>
                     <Typography sx={{
                         backgroundcolor: "primary",
                         backgroundImage: `linear-gradient(180deg, #000000, #C0C0C0)`,
@@ -72,46 +80,55 @@ function MovieCard(Props: MovieProps): JSX.Element {
                         backgroundRepeat: "repeat",
                         backgroundClip: "text",
                         WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent"
+                        WebkitTextFillColor: "transparent",
+
                     }}><div dangerouslySetInnerHTML={{ __html: `${innerHtml}` }} />
                     </Typography>
-                    <Box
-                        display="flex"
-                        justifyContent="flex-end"
-                        alignItems="flex-end"
+                </Box>
+                <Box
+                    display="flex"
+                    justifyContent="flex-end"
+                    alignItems="flex-end"
+                >
+                    <Button size="small" onClick={() => setOpen(true)}>
+                        Plus
+                    </Button>
+                    <Modal
+                        open={open}
+                        onClose={() => setOpen(false)}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
                     >
-                        <Button size="small" onClick={() => setOpen(true)}>
-                            Plus
-                        </Button>
-                        <Modal
-                            open={open}
-                            onClose={() => setOpen(false)}
-                            aria-labelledby="modal-modal-title"
-                            aria-describedby="modal-modal-description"
-                        >
-                            <Card sx={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                width: '80%',
-                                marginBottom: 1,
-                                boxShadow: 24,
-                            }}>
-                                <MovieDescription isPopup={true} movie={Props} closePopup={setOpen} />
-                            </Card>
-                        </Modal>
+                        <Card sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            width: '80%',
+                            marginBottom: 1,
+                            boxShadow: 24,
+                        }}>
+                            <MovieDescription isPopup={true} movie={Props} closePopup={setOpen} />
+                        </Card>
+                    </Modal>
 
-                    </Box>
                 </Box>
             </CardContent>
-        </Card>
+        </Card >
     );
 }
 
 
+const filters = [
+    (_: MovieProps) => (true),
+    (movie: MovieProps) => (movie.is_new),
+    (movie: MovieProps) => (movie.is_unique),
+    (movie: MovieProps) => (movie.is_premiere),
+]
+
 export function Album() {
     const [movies, setMovies] = useState<MovieProps[]>([]);
+    const [filterId, setFilterId] = useState<number>(0);
 
     useEffect(() => {
         const api = async () => {
@@ -151,10 +168,11 @@ export function Album() {
                         </Typography>
                     </Container>
                 </Box>
+                <FilterSelector id={filterId} setId={setFilterId} />
                 <Container sx={{ py: 8 }} maxWidth="md">
                     {/* End hero unit */}
                     <Grid container spacing={4} columns={12}>
-                        {movies.sort((a, b) => (a.id - b.id)).map((movie: MovieProps) => (
+                        {movies.filter(filters[filterId]).sort((a, b) => (a.id - b.id)).map((movie: MovieProps) => (
                             <Grid item key={movie.id} xs={12} sm={6} md={4}>
                                 <MovieCard {...movie} />
                             </Grid>

@@ -82,6 +82,22 @@ pub(crate) fn build_movie(movie: &Value) -> InfoMovie {
         },
     };
 
+    let is_new = match movie.get("customFlags") {
+        None => bool::default(),
+        Some(t) => match get_bool(t, "weeklyOuting") {
+            Err(_) => bool::default(),
+            Ok(t) => *t,
+        },
+    };
+
+    let is_premiere = match movie.get("customFlags") {
+        None => bool::default(),
+        Some(t) => match get_bool(t, "isPremiere") {
+            Err(_) => bool::default(),
+            Ok(t) => *t,
+        },
+    };
+
     InfoMovie {
         title: get_string(movie, "title")
             .expect("We checked the title exists")
@@ -90,6 +106,8 @@ pub(crate) fn build_movie(movie: &Value) -> InfoMovie {
         release,
         summary,
         image,
+        is_new,
+        is_premiere,
     }
 }
 
@@ -134,6 +152,13 @@ pub(crate) fn get_string<'a>(val: &'a Value, tag: &'a str) -> Result<&'a String,
     }
 }
 
+pub(crate) fn get_bool<'a>(val: &'a Value, tag: &'a str) -> Result<&'a bool, ServerError> {
+    match val.get(tag) {
+        Some(Value::Bool(t)) => Ok(t),
+        _ => Err(ServerError::JsonParse),
+    }
+}
+
 #[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
 pub(crate) struct InfoMovie {
     pub(crate) title: String,
@@ -141,6 +166,8 @@ pub(crate) struct InfoMovie {
     pub(crate) release: String,
     pub(crate) summary: String,
     pub(crate) image: String,
+    pub(crate) is_new: bool,
+    pub(crate) is_premiere: bool,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]

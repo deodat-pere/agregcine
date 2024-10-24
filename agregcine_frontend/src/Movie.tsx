@@ -51,6 +51,9 @@ export default function MoviePage() {
                         image_link: "",
                         release_date: "",
                         id: -1,
+                        is_new: false,
+                        is_premiere: false,
+                        is_unique: false,
                     });
                     setIsError(true);
                 }
@@ -155,9 +158,9 @@ function Showings(Props: ShowProps) {
                             < Typography variant="h6" align="left" color="text.primary" margin={2}>
                                 {parse_date(day)[1]}
                             </Typography>
-                            <Box display="flex" >
+                            <Box display="flex" flexDirection={"row"} flexWrap={"wrap"}>
                                 {mappings.get(day)?.sort((a, b) => (a.hour < b.hour ? -1 : 1)).map((props: PrettyShow) => (
-                                    <Box margin={1} marginBottom={3}>
+                                    <Box display={"flex"} margin={1} marginBottom={3}>
                                         <Card>
                                             < Typography align="left" color="text.primary" paddingLeft={1} paddingRight={1}>
                                                 {props.hour}

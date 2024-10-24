@@ -47,37 +47,44 @@ export function MovieDescription(props: MovieDescriptionProps) {
             <Card
                 sx={{ width: '80%', display: 'flex', flexDirection: 'column' }}
             >
-                <CardContent >
-                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Typography gutterBottom variant="h5" component="h2" flexGrow={9}>
-                            {props.movie.name}
-                        </Typography>
-                        <Box flexGrow={1} display={"flex"} flexDirection={"row-reverse"}>
-                            {props.isPopup ?
-                                <IconButton
-                                    color="default" size="large"
-                                    onClick={() => {
-                                        if (props.closePopup) {
-                                            props.closePopup(false)
-                                        }
-                                    }}>
-                                    <CloseIcon />
-                                </IconButton> : <a></a>
-                            }
+                <CardContent sx={{ display: "flex", flexDirection: "column" }}>
+                    <Box>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <Typography gutterBottom variant="h5" component="h2" flexGrow={9}>
+                                {props.movie.name}
+                            </Typography>
+                            <Box flexGrow={1} display={"flex"} flexDirection={"row-reverse"}>
+                                {props.isPopup ?
+                                    <IconButton
+                                        color="default" size="large"
+                                        onClick={() => {
+                                            if (props.closePopup) {
+                                                props.closePopup(false)
+                                            }
+                                        }}>
+                                        <CloseIcon />
+                                    </IconButton> : <a></a>
+                                }
 
 
+                            </Box>
+                        </Box>
+                        <Box>
+                            <Typography color="text.secondary">
+                                {props.movie.runtime}
+                            </Typography>
+
+                            <Typography> <div dangerouslySetInnerHTML={{ __html: props.movie.summary }} /> </Typography>
                         </Box>
                     </Box>
-                    <Typography color="text.secondary">
-                        {props.movie.runtime}
-                    </Typography>
+                    <Box>
+                        {props.isPopup ? <Box display="flex" flexDirection='row-reverse' >
 
-                    <Typography> <div dangerouslySetInnerHTML={{ __html: props.movie.summary }} /> </Typography>
-                    {props.isPopup ? <Box display="flex" flexDirection='row-reverse' >
-                        <Button size="small" onClick={() => routeChange()}>
-                            Voir les séances
-                        </Button>
-                    </Box> : <div></div>}
+                            <Button size="small" onClick={() => routeChange()}>
+                                Voir les séances
+                            </Button>
+                        </Box> : <div></div>}
+                    </Box>
                 </CardContent>
             </Card >
         </Box>

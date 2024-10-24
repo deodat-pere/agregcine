@@ -31,6 +31,9 @@ pub(crate) async fn get_movies(
             image_link: v.movie.image.clone(),
             summary: v.movie.summary.clone(),
             release_date: v.movie.release.clone(),
+            is_new: v.movie.is_new,
+            is_premiere: v.movie.is_premiere,
+            is_unique: { v.dates.len() == 1 },
         })
         .collect();
     Ok(Json(movies))
@@ -51,6 +54,9 @@ pub(crate) async fn get_movie_by_id(
         image_link: m.movie.image.clone(),
         summary: m.movie.summary.clone(),
         release_date: m.movie.release.clone(),
+        is_new: m.movie.is_new,
+        is_premiere: m.movie.is_premiere,
+        is_unique: { m.dates.len() == 1 },
     })?;
     Ok(Json(movie))
 }
@@ -63,6 +69,9 @@ pub(crate) struct Movie {
     image_link: String,
     summary: String,
     release_date: String,
+    is_new: bool,
+    is_premiere: bool,
+    is_unique: bool,
 }
 
 pub(crate) async fn get_showings(
