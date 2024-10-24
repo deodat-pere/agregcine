@@ -65,14 +65,14 @@ function MovieCard(Props: MovieProps): JSX.Element {
                     }
                 />
             </Tooltip>
-            <CardContent sx={{ flexGrow: 1 }}>
-                <Typography gutterBottom variant="h5" component="h2">
-                    {Props.name}
-                </Typography>
-                <Typography color="text.secondary">
-                    {Props.runtime}
-                </Typography>
-                <Box>
+            <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", }}>
+                <Box display={"flex"} flexDirection={"column"}>
+                    <Typography gutterBottom variant="h5" component="h2">
+                        {Props.name}
+                    </Typography>
+                    <Typography color="text.secondary">
+                        {Props.runtime}
+                    </Typography>
                     <Typography sx={{
                         backgroundcolor: "primary",
                         backgroundImage: `linear-gradient(180deg, #000000, #C0C0C0)`,
@@ -80,37 +80,38 @@ function MovieCard(Props: MovieProps): JSX.Element {
                         backgroundRepeat: "repeat",
                         backgroundClip: "text",
                         WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent"
+                        WebkitTextFillColor: "transparent",
+
                     }}><div dangerouslySetInnerHTML={{ __html: `${innerHtml}` }} />
                     </Typography>
-                    <Box
-                        display="flex"
-                        justifyContent="flex-end"
-                        alignItems="flex-end"
+                </Box>
+                <Box
+                    display="flex"
+                    justifyContent="flex-end"
+                    alignItems="flex-end"
+                >
+                    <Button size="small" onClick={() => setOpen(true)}>
+                        Plus
+                    </Button>
+                    <Modal
+                        open={open}
+                        onClose={() => setOpen(false)}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
                     >
-                        <Button size="small" onClick={() => setOpen(true)}>
-                            Plus
-                        </Button>
-                        <Modal
-                            open={open}
-                            onClose={() => setOpen(false)}
-                            aria-labelledby="modal-modal-title"
-                            aria-describedby="modal-modal-description"
-                        >
-                            <Card sx={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                width: '80%',
-                                marginBottom: 1,
-                                boxShadow: 24,
-                            }}>
-                                <MovieDescription isPopup={true} movie={Props} closePopup={setOpen} />
-                            </Card>
-                        </Modal>
+                        <Card sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            width: '80%',
+                            marginBottom: 1,
+                            boxShadow: 24,
+                        }}>
+                            <MovieDescription isPopup={true} movie={Props} closePopup={setOpen} />
+                        </Card>
+                    </Modal>
 
-                    </Box>
                 </Box>
             </CardContent>
         </Card >

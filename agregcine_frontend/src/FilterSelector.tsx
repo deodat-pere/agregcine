@@ -11,6 +11,7 @@ export function noFilter(_v: MovieProps, _i: number, _a: MovieProps[]): boolean 
 
 const ClickedSx = {
     marginLeft: 2,
+    marginTop: 1,
     border: "1px solid",
     cursor: "pointer",
     borderColor: "text.primary",
@@ -23,6 +24,7 @@ function get_button_style(selected: number, id: number): any {
     } else {
         const style = {
             marginLeft: 2,
+            marginTop: 1,
             border: "1px solid",
             borderColor: "text.secondary",
             "&:hover": ClickedSx,
@@ -40,7 +42,7 @@ export function FilterSelector(props: FilterSelectorProps): JSX.Element {
     }
 
     return (
-        <Box display={"flex"} flexDirection={"row"} width="lg" justifyContent={"center"}>
+        <Box display={"flex"} flexDirection={"row"} flexWrap={"wrap"} width="lg" justifyContent={"center"}>
             {Array.from(Array(opt_len).keys()).map((id: number) => (
                 <Paper sx={get_button_style(props.id, id)}>
                     <Button sx={{
