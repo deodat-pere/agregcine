@@ -17,6 +17,7 @@ import * as config from '../config.json';
 import { get_image } from './utils';
 import { MovieDescription } from './MovieDescription';
 import Tooltip from '@mui/material/Tooltip';
+import { FilterSelector } from './FilterSelector';
 
 
 
@@ -28,6 +29,9 @@ export type MovieProps = {
     summary: string;
     image_link: string;
     release_date: string;
+    is_new: boolean,
+    is_premiere: boolean,
+    is_unique: boolean,
 }
 
 function MovieCard(Props: MovieProps): JSX.Element {
@@ -49,7 +53,11 @@ function MovieCard(Props: MovieProps): JSX.Element {
                     component="a"
                     sx={{
                         pt: '125%',
-                        cursor: 'pointer',
+                        "&:hover": {
+                            cursor: 'pointer',
+                            boxShadow: 10,
+                            transform: "scale(1.01)",
+                        }
                     }}
                     image={get_image(Props.image_link)}
                     href={"/movie/" + Props.id.toString()}
@@ -105,13 +113,21 @@ function MovieCard(Props: MovieProps): JSX.Element {
                     </Box>
                 </Box>
             </CardContent>
-        </Card>
+        </Card >
     );
 }
 
 
+const filters = [
+    (_: MovieProps) => (true),
+    (movie: MovieProps) => (movie.is_new),
+    (movie: MovieProps) => (movie.is_unique),
+    (movie: MovieProps) => (movie.is_premiere),
+]
+
 export function Album() {
     const [movies, setMovies] = useState<MovieProps[]>([]);
+    const [filterId, setFilterId] = useState<number>(0);
 
     useEffect(() => {
         const api = async () => {
@@ -151,10 +167,11 @@ export function Album() {
                         </Typography>
                     </Container>
                 </Box>
+                <FilterSelector id={filterId} setId={setFilterId} />
                 <Container sx={{ py: 8 }} maxWidth="md">
                     {/* End hero unit */}
                     <Grid container spacing={4} columns={12}>
-                        {movies.sort((a, b) => (a.id - b.id)).map((movie: MovieProps) => (
+                        {movies.filter(filters[filterId]).sort((a, b) => (a.id - b.id)).map((movie: MovieProps) => (
                             <Grid item key={movie.id} xs={12} sm={6} md={4}>
                                 <MovieCard {...movie} />
                             </Grid>

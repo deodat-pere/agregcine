@@ -51,6 +51,9 @@ export default function MoviePage() {
                         image_link: "",
                         release_date: "",
                         id: -1,
+                        is_new: false,
+                        is_premiere: false,
+                        is_unique: false,
                     });
                     setIsError(true);
                 }

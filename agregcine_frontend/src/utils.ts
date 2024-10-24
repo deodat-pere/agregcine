@@ -15,4 +15,7 @@ export const default_movie_props: MovieProps = {
     image_link: "",
     release_date: "",
     id: 0,
+    is_new: false,
+    is_premiere: false,
+    is_unique: false,
 } 
