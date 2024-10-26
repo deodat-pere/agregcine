@@ -1,4 +1,4 @@
-import { MovieProps } from "./Album"
+import { MovieProps } from "./HomePage/Album"
 
 export function get_image(image_link: string): string {
     if (image_link.length == 0) {
@@ -15,6 +15,18 @@ export const default_movie_props: MovieProps = {
     image_link: "",
     release_date: "",
     id: 0,
+    is_new: false,
+    is_premiere: false,
+    is_unique: false,
+} 
+
+export const not_found_movie_props: MovieProps = {
+    name: "",
+    runtime: "",
+    summary: "",
+    image_link: "",
+    release_date: "",
+    id: -1,
     is_new: false,
     is_premiere: false,
     is_unique: false,

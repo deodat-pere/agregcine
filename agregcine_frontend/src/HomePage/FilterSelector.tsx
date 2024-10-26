@@ -7,7 +7,14 @@ export type FilterSelectorProps = {
     setId: React.Dispatch<React.SetStateAction<number>>
 }
 
-export function noFilter(_v: MovieProps, _i: number, _a: MovieProps[]): boolean { return true }
+//export function noFilter(_v: MovieProps, _i: number, _a: MovieProps[]): boolean { return true }
+
+export const filters = [
+    (_: MovieProps) => (true),
+    (movie: MovieProps) => (movie.is_new),
+    (movie: MovieProps) => (movie.is_unique),
+    (movie: MovieProps) => (movie.is_premiere),
+]
 
 const ClickedSx = {
     marginLeft: 2,
@@ -33,7 +40,7 @@ function get_button_style(selected: number, id: number): any {
     }
 }
 
-export function FilterSelector(props: FilterSelectorProps): JSX.Element {
+export default function FilterSelector(props: FilterSelectorProps): JSX.Element {
     const options = ["Tous les films", "Sorties de la semaine", "Diffusions uniques", "Avant premières"];
     const opt_len = options.length;
 

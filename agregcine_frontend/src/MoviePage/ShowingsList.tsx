@@ -1,96 +1,8 @@
-import Card from '@mui/material/Card';
-import CssBaseline from '@mui/material/CssBaseline';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from './theme';
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { MovieProps } from './Album';
-import NotFound from './NotFound';
-import { IconButton } from '@mui/material';
-import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
-import Divider from '@mui/material/Divider';
-import { baseUrl } from './App';
-import { MovieDescription } from './MovieDescription';
-import { default_movie_props } from './utils';
+import { Typography, Container, Divider, Box, Card } from "@mui/material";
+import { useEffect, useState } from "react";
+import { baseUrl } from "../App";
 
-type ShowingProps = {
-    cine: string,
-    time: string,
-}
-
-export default function MoviePage() {
-    const { id } = useParams();
-    const [isError, setIsError] = useState<boolean>(false);
-
-    const [movie, setMovie] = useState<MovieProps>(default_movie_props);
-
-    let navigate = useNavigate();
-    const routeChange = () => {
-        let path = `/`;
-        navigate(path);
-    }
-
-    useEffect(() => {
-        const api = async () => {
-            if (id) {
-
-                const data = await fetch(baseUrl + "movie/" + id, {
-                    method: "GET"
-                });
-                if (data.ok) {
-                    const jsonData = await data.json();
-                    setMovie(jsonData);
-                } else {
-                    setMovie({
-                        name: "",
-                        runtime: "",
-                        summary: "",
-                        image_link: "",
-                        release_date: "",
-                        id: -1,
-                        is_new: false,
-                        is_premiere: false,
-                        is_unique: false,
-                    });
-                    setIsError(true);
-                }
-            }
-        };
-
-        api();
-    }, []);
-    if (!(isError && movie.id < 0) && id) {
-        return (
-            <ThemeProvider theme={theme}>
-                <CssBaseline />
-                <Box width='100%'>
-                    <Box paddingBottom={2}>
-                        <IconButton color="default" size="large" onClick={() => routeChange()}>
-                            <ArrowBackOutlinedIcon />
-                        </IconButton>
-                    </Box>
-                    <MovieDescription movie={movie} isPopup={false} closePopup={null} />
-                    <Box paddingTop={6}>
-                        <Showings id={id} />
-                    </Box>
-                </Box>
-            </ThemeProvider >
-        );
-    } else {
-        return (
-            <NotFound />
-        );
-    }
-
-}
-
-
-
-
-type ShowProps = {
+type ShowingsListProps = {
     id: string
 };
 
@@ -100,7 +12,12 @@ type PrettyShow = {
     hour: string,
 }
 
-function Showings(Props: ShowProps) {
+type ShowingProps = {
+    cine: string,
+    time: string,
+}
+
+export default function ShowingsList(Props: ShowingsListProps) {
     const [showings, setShowings] = useState<ShowingProps[]>([]);
 
     useEffect(() => {
