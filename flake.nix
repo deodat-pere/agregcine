@@ -25,6 +25,9 @@
       let
         pkgs = import nixpkgs {
           system = system;
+          overlays = [
+            (import rust-overlay)
+          ];
         };
         pkgsCross = import nixpkgs {
           system = system;
@@ -134,8 +137,22 @@
               }
             );
           };
+
+        rust = pkgs.rust-bin.stable.latest.default.override {
+          extensions = [
+            "rust-analyzer"
+            "rust-src"
+          ];
+        };
       in
       {
+        devShell = pkgs.mkShell {
+          buildInputs = [
+            rust
+            pkgs.nodejs
+          ];
+        };
+
         packages.agregcine_backend = craneLib.buildPackage {
           src = craneLib.cleanCargoSource ./agregcine_backend;
           strictDeps = true;
