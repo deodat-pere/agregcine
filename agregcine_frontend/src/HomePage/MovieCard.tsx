@@ -80,16 +80,28 @@ export default function MovieCard(Props: MovieProps): JSX.Element {
                             display: '-webkit-box',
                             WebkitBoxOrient: 'vertical',
                             WebkitLineClamp: lineClamp,
-                            backgroundcolor: "primary",
+                            overflow: 'hidden',
+                            position: 'relative',
+                            whiteSpace: 'normal',
+                            color: 'transparent', // This makes the text take on the gradient color below
                             backgroundImage: `linear-gradient(180deg, #000000, #C0C0C0)`,
-                            backgroundSize: "100%",
-                            backgroundRepeat: "repeat",
-                            backgroundClip: "text",
-                            WebkitBackgroundClip: "text",
-                            WebkitTextFillColor: "transparent",
-
-                        }}><div dangerouslySetInnerHTML={{ __html: `${Props.summary}` }} />
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            '&::after': {
+                                content: '""',
+                                position: 'absolute',
+                                bottom: 0,
+                                right: 0,
+                                height: '1.5em', // Adjust this height to control the fading effect
+                                width: '100%',
+                                background: `linear-gradient(to right, transparent, #fff)`, // Adjust to the background color of the card
+                            }
+                        }}
+                    >
+                        <div dangerouslySetInnerHTML={{ __html: `${Props.summary}` }} />
                     </Typography>
+
                 </Box>
                 <Box
                     ref={buttonRef}
