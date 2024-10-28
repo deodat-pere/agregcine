@@ -5,7 +5,7 @@
         "static_files": "../agregcine_frontend/dist"
     },
     "database": {
-        "file": "movies_db"
+        "file": "movies.json"
     },
     "log": {
         "dir": "logs",

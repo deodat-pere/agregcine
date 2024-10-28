@@ -4,7 +4,6 @@ pub(crate) enum ServerError {
     ConfigParse,
     LogConfigParse,
     File,
-    BucketRead,
     AddrBind,
     ServerRun,
     MutexLock,

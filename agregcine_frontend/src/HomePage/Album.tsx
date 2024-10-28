@@ -41,7 +41,7 @@ export default function Album(props: AlbumProps) {
     return (
         <Container sx={{ py: 8 }} maxWidth="md">
             <Grid container spacing={1.5} columns={{ xs: 4, sm: 8, md: 12 }}>
-                {movies.filter(filters[props.filterId]).sort((a, b) => (a.id - b.id)).map((movie: MovieProps) => (
+                {movies.filter(filters[props.filterId]).sort((a, b) => (a.name.localeCompare(b.name))).map((movie: MovieProps) => (
                     <Grid key={movie.id} size={4}>
                         <MovieCard {...movie} />
                     </Grid>

@@ -45,21 +45,16 @@ async fn main() -> Result<(), ServerError> {
 
     let movies_mutex = Arc::new(Mutex::new(movies));
 
-    // Get kv config
-    let cfg = kv::Config::new(&config.database.file);
-    // Open the key/value store
-    let store = kv::Store::new(cfg).expect("Couldn't open kv store");
-
     {
         let mut m = movies_mutex.lock().map_err(|_| ServerError::MutexLock)?;
 
-        *m = refresh_movies(&store)?;
+        *m = refresh_movies(&config.database.file);
     }
 
     let mm_clone = movies_mutex.clone();
     let config_clone = config.clone();
     tokio::spawn(async move {
-        wait(args.reload, config_clone, mm_clone.clone(), &store).await;
+        wait(args.reload, config_clone, mm_clone.clone()).await;
     });
 
     spawn_server(

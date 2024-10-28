@@ -2,6 +2,7 @@ target
 /logs
 /test_logs
 /movies_db
+movies.json
 config.json
 config-test.json
 /static

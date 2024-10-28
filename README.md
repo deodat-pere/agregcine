@@ -24,7 +24,7 @@ Structure du fichier de config:
 |  |__static_files: string (chemin vers les fichiers statiques à servir)
 |
 |__database (configuration du fichier de base de donnée ou sont stockées les infos scrappées)
-|  |__file: string (chemin vers le dossier de base de donnée, droits d'écritures nécessaires)
+|  |__file: string (chemin vers le fichier (json) de base de donnée, droits d'écritures nécessaires)
 |
 |__log (configuration des logs du serveur)
 |  |__dir: string (chemin vers le dossier de logs, droits d'écriture necessaires)
@@ -47,6 +47,6 @@ Une fois le scrapping fini, le site devrait afficher les films sur le port spéc
 
 A chaque fois qu'il commence a scrapper, le serveur fait sept requêtes a Allociné par cinéma spécifié.
 
-Par défaut, un scrappage sera lancé au lancement du serveur si le fichier de base de donnée n'existe pas ou est vide. Il est possible de forcer un scrappage en passant le flag -r au serveur.
+Par défaut, un scrappage sera lancé au lancement du serveur si le fichier de base de donnée n'existe pas, est vide, ou si la structure des données n'est pas bonne. Il est possible de forcer un scrappage en passant le flag -r au serveur.
 
 Une fois le serveur lancé, Allociné sera scrappé chaque jour a 00:01 UTC.
