@@ -88,6 +88,7 @@ export default function MovieCard(Props: MovieProps): JSX.Element {
                             backgroundClip: 'text',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
+                            maxHeight: "20vh",
                             '&::after': {
                                 content: '""',
                                 position: 'absolute',
