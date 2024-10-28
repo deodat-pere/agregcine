@@ -78,7 +78,7 @@
 
         mkNixosModule =
           {
-            crossAarch64 ? false,
+            agregcine_backend,
           }:
           {
             pkgs,
@@ -107,13 +107,6 @@
                   base_url = "/api/";
                   presentation_text = config.services.agregcine.presentationText;
                 };
-
-                agregcine_backend = (
-                  if crossAarch64 then
-                    self.packages.${system}.agregcine_backend-cross-aarch64
-                  else
-                    self.packages.${system}.agregcine_backend
-                );
 
                 agregcine_backend_config = pkgs.writeText "config.json" (
                   builtins.toJSON (
@@ -171,8 +164,10 @@
             "${stdenv.cc.targetPrefix}cc";
         };
 
-        nixosModule = mkNixosModule { };
-        nixosModuleCrossAarch64 = mkNixosModule { crossAarch64 = true; };
+        nixosModule = mkNixosModule { agregcine_backend = self.packages."${system}".agregcine_backend; };
+        nixosModuleCrossAarch64 = mkNixosModule {
+          agregcine_backend = self.packages."${system}".agregcine_backend-cross-aarch64;
+        };
       }
     );
 }
