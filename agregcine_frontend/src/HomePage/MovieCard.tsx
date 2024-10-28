@@ -26,7 +26,7 @@ export default function MovieCard(Props: MovieProps): JSX.Element {
                 const cardHeight = cardRef.current.offsetHeight;
                 const sumaryY = summaryRef.current.getBoundingClientRect().y;
                 const buttonHeight = buttonRef.current.offsetHeight;
-                const availableHeight = cardHeight - (sumaryY - cardY) - buttonHeight;
+                const availableHeight = cardHeight - (sumaryY - cardY) - buttonHeight - 32; // 32 is the sum of the paddings and margins
 
                 const lineHeight = parseFloat(getComputedStyle(summaryElement).lineHeight);
                 const maxLines = Math.floor(availableHeight / lineHeight);
@@ -37,7 +37,11 @@ export default function MovieCard(Props: MovieProps): JSX.Element {
 
         adjustLineClamp();
         window.addEventListener('resize', adjustLineClamp);
-        return () => window.removeEventListener('resize', adjustLineClamp);
+        window.addEventListener('click', adjustLineClamp);
+        return () => {
+            window.removeEventListener('resize', adjustLineClamp);
+            window.removeEventListener('click', adjustLineClamp);
+        }
     }, [Props.summary]);
 
     return (
