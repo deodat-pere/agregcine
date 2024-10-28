@@ -71,7 +71,6 @@
             npmConfigHook = pkgs.importNpmLock.npmConfigHook;
 
             installPhase = ''
-              npm run build
               cp -r dist $out
             '';
           };
@@ -144,6 +143,11 @@
             rust
             pkgs.nodejs
           ];
+        };
+
+        packages.agregcine_frontend = mkAgregcine_frontend {
+          base_url = "/api/";
+          presentation_text = "Agregcine";
         };
 
         packages.agregcine_backend = craneLib.buildPackage {
