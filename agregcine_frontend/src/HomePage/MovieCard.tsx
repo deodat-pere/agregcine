@@ -1,5 +1,5 @@
 import { Card, Tooltip, CardMedia, CardContent, Box, Typography, Button, Modal } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { get_image } from "../utils";
 import { MovieProps } from "./Album";
@@ -7,16 +7,42 @@ import MovieDescription from "./MovieDescription";
 
 export default function MovieCard(Props: MovieProps): JSX.Element {
     const [open, setOpen] = useState<boolean>(false);
+    const [lineClamp, setLineClamp] = useState<number>(3);
+    const cardRef = useRef<HTMLDivElement>(null);
+    const summaryRef = useRef<HTMLDivElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
     let navigate = useNavigate();
-    var innerHtml: string;
-    if (Props.summary.length > 0) { innerHtml = Props.summary.substring(0, 110).concat("...") } else { innerHtml = "" };
+
     const routeChange = () => {
         let path = `/movie/` + Props.id.toString();
         navigate(path);
     }
 
+    useEffect(() => {
+        const adjustLineClamp = () => {
+            if (cardRef.current && summaryRef.current && buttonRef.current) {
+                const summaryElement = summaryRef.current;
+                const cardY = cardRef.current.getBoundingClientRect().y;
+                const cardHeight = cardRef.current.offsetHeight;
+                const sumaryY = summaryRef.current.getBoundingClientRect().y;
+                const buttonHeight = buttonRef.current.offsetHeight;
+                const availableHeight = cardHeight - (sumaryY - cardY) - buttonHeight;
+
+                const lineHeight = parseFloat(getComputedStyle(summaryElement).lineHeight);
+                const maxLines = Math.floor(availableHeight / lineHeight);
+
+                setLineClamp(maxLines);
+            }
+        };
+
+        adjustLineClamp();
+        window.addEventListener('resize', adjustLineClamp);
+        return () => window.removeEventListener('resize', adjustLineClamp);
+    }, [Props.summary]);
+
     return (
         <Card
+            ref={cardRef}
             sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
         >
             <Tooltip title="Voir les séances">
@@ -44,19 +70,25 @@ export default function MovieCard(Props: MovieProps): JSX.Element {
                     <Typography color="text.secondary">
                         {Props.runtime}
                     </Typography>
-                    <Typography sx={{
-                        backgroundcolor: "primary",
-                        backgroundImage: `linear-gradient(180deg, #000000, #C0C0C0)`,
-                        backgroundSize: "100%",
-                        backgroundRepeat: "repeat",
-                        backgroundClip: "text",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
+                    <Typography
+                        ref={summaryRef}
+                        sx={{
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: lineClamp,
+                            backgroundcolor: "primary",
+                            backgroundImage: `linear-gradient(180deg, #000000, #C0C0C0)`,
+                            backgroundSize: "100%",
+                            backgroundRepeat: "repeat",
+                            backgroundClip: "text",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
 
-                    }}><div dangerouslySetInnerHTML={{ __html: `${innerHtml}` }} />
+                        }}><div dangerouslySetInnerHTML={{ __html: `${Props.summary}` }} />
                     </Typography>
                 </Box>
                 <Box
+                    ref={buttonRef}
                     display="flex"
                     justifyContent="flex-end"
                     alignItems="flex-end"
