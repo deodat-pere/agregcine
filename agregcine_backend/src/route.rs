@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
-
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
@@ -9,16 +6,17 @@ use axum::Json;
 use serde::{Deserialize, Serialize};
 use tracing::warn;
 
-use crate::scraper::extract::{InfoGlob, InfoSeance};
+use crate::scraper::extract::InfoSeance;
+use crate::server::ServerState;
 
 pub(crate) async fn up() -> Result<impl IntoResponse, Response> {
     Ok(StatusCode::OK)
 }
 
 pub(crate) async fn get_movies(
-    State(movies): State<Arc<Mutex<HashMap<u32, InfoGlob>>>>,
+    State(state): State<ServerState>,
 ) -> Result<Json<Vec<Movie>>, StatusCode> {
-    let mov = movies.lock().map_err(|e| {
+    let mov = state.movies.lock().map_err(|e| {
         warn!("Route get_movies: Could not lock movies Mutex {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
@@ -40,10 +38,10 @@ pub(crate) async fn get_movies(
 }
 
 pub(crate) async fn get_movie_by_id(
-    State(movies): State<Arc<Mutex<HashMap<u32, InfoGlob>>>>,
+    State(state): State<ServerState>,
     Path(id): Path<u32>,
 ) -> Result<Json<Movie>, StatusCode> {
-    let mov = movies.lock().map_err(|e| {
+    let mov = state.movies.lock().map_err(|e| {
         warn!("Rout get_movie_by_id: Could not lock movies Mutex {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
@@ -75,10 +73,10 @@ pub(crate) struct Movie {
 }
 
 pub(crate) async fn get_showings(
-    State(movies): State<Arc<Mutex<HashMap<u32, InfoGlob>>>>,
+    State(state): State<ServerState>,
     Path(id): Path<u32>,
 ) -> Result<Json<Vec<InfoSeance>>, StatusCode> {
-    let mov = movies.lock().map_err(|e| {
+    let mov = state.movies.lock().map_err(|e| {
         warn!("Route get_showings: Could not lock movies Mutex {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
@@ -91,4 +89,17 @@ pub(crate) async fn get_showings(
 pub(crate) struct Showing {
     cine: String,
     time: String,
+}
+
+pub(crate) async fn get_presentation_text(
+    State(state): State<ServerState>,
+) -> Result<Json<PresentationTextResponse>, StatusCode> {
+    Ok(Json(PresentationTextResponse {
+        presentation_text: state.frontend.presentation_text,
+    }))
+}
+
+#[derive(Serialize, Deserialize)]
+pub(crate) struct PresentationTextResponse {
+    pub(crate) presentation_text: String,
 }

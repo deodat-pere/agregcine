@@ -4,6 +4,9 @@
         "port": 3000,
         "static_files": "../agregcine_frontend/dist"
     },
+    "frontend": {
+        "presentation_text": "Découvrez les films diffusés à Rennes cette semaine!"
+    },
     "database": {
         "file": "movies.json"
     },

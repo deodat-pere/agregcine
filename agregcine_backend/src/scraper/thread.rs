@@ -51,26 +51,26 @@ pub async fn refresh(
 ) -> Result<(), ServerError> {
     let infos_glob = parse_all(config).await.unwrap();
 
-    {
-        let time = chrono::Utc::now()
-            .date_naive()
-            .and_hms_opt(0, 0, 0)
-            .unwrap();
+    let time = chrono::Utc::now()
+        .date_naive()
+        .and_hms_opt(0, 0, 0)
+        .unwrap();
 
-        let stored_infos = StoredInfos {
-            time,
-            movies: infos_glob,
-        };
-        let json = serde_json::to_string(&stored_infos).unwrap();
-        let _ = std::fs::write(&config.database.file, json)
-            .inspect_err(|e| warn!("Failed to write to the store: {e}"));
+    let stored_infos = StoredInfos {
+        time,
+        movies: infos_glob,
+    };
+    let json = serde_json::to_string(&stored_infos).unwrap();
+    let _ = std::fs::write(&config.database.file, json)
+        .inspect_err(|e| warn!("Failed to write to the store: {e}"));
+
+    let mut m = movies_mutex.lock().map_err(|_| ServerError::MutexLock)?;
+
+    let mut movies = HashMap::new();
+    for (id, (_, info)) in stored_infos.movies.into_iter().enumerate() {
+        movies.insert(id as u32, info);
     }
-
-    {
-        let mut m = movies_mutex.lock().map_err(|_| ServerError::MutexLock)?;
-
-        *m = refresh_movies(&config.database.file);
-    }
+    *m = movies;
 
     Ok(())
 }

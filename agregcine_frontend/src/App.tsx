@@ -4,9 +4,9 @@ import HomePage from './HomePage/HomePage';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NotFound from './NotFound';
 import MoviePage from './MoviePage/MoviePage';
-import * as config from '../config.json';
 
-export const baseUrl = config.baseUrl;
+export const baseUrl = "/api/"
+
 
 function Footer() {
   return (

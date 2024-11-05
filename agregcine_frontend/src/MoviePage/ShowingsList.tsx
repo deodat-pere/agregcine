@@ -36,15 +36,15 @@ export default function ShowingsList(Props: ShowingsListProps) {
         api();
     }, []);
     if (showings) {
-        var days_arr: Set<string> = new Set;
-        var mappings: Map<string, PrettyShow[]> = new Map;
+        let days_arr: Set<string> = new Set;
+        let mappings: Map<string, PrettyShow[]> = new Map;
 
         showings.forEach((showing) => {
             const d: string[] = parse_date(showing.time);
 
-            var show_arr = mappings.get(d[0]);
+            let show_arr = mappings.get(d[0]);
             if (show_arr) {
-                var pshow: PrettyShow = {
+                let pshow: PrettyShow = {
                     cine: showing.cine,
                     day: d[1],
                     hour: parse_hour(showing.time),
@@ -53,7 +53,7 @@ export default function ShowingsList(Props: ShowingsListProps) {
                 mappings.set(d[0], show_arr);
             } else {
                 days_arr.add(d[0]);
-                var pshow: PrettyShow = {
+                let pshow: PrettyShow = {
                     cine: showing.cine,
                     day: d[1],
                     hour: parse_hour(showing.time),
@@ -62,7 +62,7 @@ export default function ShowingsList(Props: ShowingsListProps) {
             }
         });
 
-        var unique_day_arr: string[] = Array.from(days_arr.values());
+        let unique_day_arr: string[] = Array.from(days_arr.values());
         return (
             <div>
                 < Typography variant="h4" align="left" color="text.primary" margin={2}>
@@ -102,12 +102,12 @@ export default function ShowingsList(Props: ShowingsListProps) {
 }
 
 function parse_date(s: string) {
-    var jours = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-    var mois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
-    var b = s.split(/\D+/);
-    var date = new Date(Date.UTC(Number(b[0]), Number(b[1]) - 1, Number(b[2])));
+    let jours = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+    let mois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    let b = s.split(/\D+/);
+    let date = new Date(Date.UTC(Number(b[0]), Number(b[1]) - 1, Number(b[2])));
 
-    var date_pretty = jours[date.getDay()] + " " + date.getDate() + " " + mois[date.getMonth()];
+    let date_pretty = jours[date.getDay()] + " " + date.getDate() + " " + mois[date.getMonth()];
     return [date.toISOString(), date_pretty];
 }
 

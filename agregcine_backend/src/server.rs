@@ -7,9 +7,9 @@ use axum::{routing::get, Router};
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::{ServeDir, ServeFile};
 
-use crate::config::Config;
+use crate::config::{Config, Frontend};
 use crate::error::ServerError;
-use crate::route::{get_movie_by_id, get_movies, get_showings, up};
+use crate::route::{get_movie_by_id, get_movies, get_presentation_text, get_showings, up};
 use crate::scraper::extract::InfoGlob;
 
 /// Create a TCP listener and call [`spawn_server_with_listener`]
@@ -48,12 +48,17 @@ pub async fn spawn_server_with_listener(
     config: Config,
     movies: Arc<Mutex<HashMap<u32, InfoGlob>>>,
 ) -> Result<(), ServerError> {
+    let state = ServerState {
+        movies,
+        frontend: config.frontend.clone(),
+    };
     let routes: Router = Router::new()
         .route("/up", get(up))
         .route("/movies", get(get_movies))
         .route("/showings/:id", get(get_showings))
         .route("/movie/:id", get(get_movie_by_id))
-        .with_state(movies);
+        .route("/presentation_text", get(get_presentation_text))
+        .with_state(state);
 
     let cors = CorsLayer::new()
         // allow `GET` and `POST` when accessing the resource
@@ -84,4 +89,10 @@ pub async fn spawn_server_with_listener(
         .serve(app.into_make_service())
         .await
         .map_err(|_| ServerError::ServerRun)
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct ServerState {
+    pub(crate) movies: Arc<Mutex<HashMap<u32, InfoGlob>>>,
+    pub(crate) frontend: Frontend,
 }

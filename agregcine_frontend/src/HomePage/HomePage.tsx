@@ -4,15 +4,29 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../theme';
-import { useState } from 'react';
-import * as config from '../../config.json';
+import { useEffect, useState } from 'react';
 import FilterSelector from './FilterSelector';
 import Album from './Album';
+import { baseUrl } from '../App';
 
 
 
 export default function HomePage() {
     const [filterId, setFilterId] = useState<number>(0);
+
+    const [presentationText, setPresentationText] = useState<string>("");
+
+    useEffect(() => {
+        const api = async () => {
+            const data = await fetch(baseUrl + "presentation_text", {
+                method: "GET"
+            });
+            const jsonData = await data.json();
+            setPresentationText(jsonData.presentation_text);
+        };
+
+        api();
+    }, []);
 
     return (
         <ThemeProvider theme={theme}>
@@ -36,8 +50,8 @@ export default function HomePage() {
                         >
                             Films de la semaine
                         </Typography>
-                        <Typography variant="h5" align="center" color="text.secondary" paragraph>
-                            {config.presentationText}
+                        <Typography variant="h5" align="center" color="text.secondary">
+                            {presentationText}
                         </Typography>
                     </Container>
                 </Box>

@@ -7,11 +7,7 @@ Ce readme a pour objectif d'expliquer les fichiers de configuration, et de prés
 
 ## Configuration du front
 
-Le fichier de configuration à écrire est `agregcine_frontend/config.json`. Un fichier `agregcine_frontend/config-sample.json` est également présent dans le repo pour exemple.
-
-Ce fichier contient deux paramètres:
-- L'URL de l'API, qui doit forcément finir par `api/` pour fonctionner.
-- Le texte de présentation du site écrit sur la page de garde, pour l'adapter à votre cas d'usage précis.
+Par défaut, en dev, les requêtes à l'api seront faites à http://localhost:3000/, et en build sur la même URL que le serveur statique. Ce comportement peut etre modifié dans `agregcine_frontend/cite.config.ts`.
 
 ## Configuration du back
 
@@ -22,6 +18,9 @@ Structure du fichier de config:
 |  |__address: string (adresse IP du serveur)
 |  |__port: number (port sur lequel écouter)
 |  |__static_files: string (chemin vers les fichiers statiques à servir)
+|
+|__frontend (éléments à envoyer directement au frontend)
+|  |__presentation_text: string (texte expliquant quels cinémas sont agrégés)
 |
 |__database (configuration du fichier de base de donnée ou sont stockées les infos scrappées)
 |  |__file: string (chemin vers le fichier (json) de base de donnée, droits d'écritures nécessaires)
@@ -36,7 +35,7 @@ Structure du fichier de config:
 
 ## Lancer le serveur simplement en local
 
-Les fichiers de configs fournis en exemple sont cohérents et doivent vous permettre de lancer le site en local.
+Le fichier de config fourni en exemple vous permets de lancer le site en local. Recopiez son contenu dans `agregcine_backend/config.json`.
 
 Lancez le script install.sh pour construire le front et compiler le back.
 Déplacez vous dans agregcine_backend puis lancez target/release/agregcine_backend.

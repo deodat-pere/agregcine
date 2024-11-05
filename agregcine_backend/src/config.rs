@@ -16,6 +16,8 @@ use crate::error::ServerError;
 pub struct Config {
     /// * `server` - [`Server`]
     pub server: Server,
+    /// * `frontend` - [`Frontend`]
+    pub frontend: Frontend,
     /// * `log` - [`LogConfiguration`]
     pub log: LogConfiguration,
     /// * `database` - [`DataBase`]
@@ -34,6 +36,13 @@ pub struct Server {
     pub port: u16,
     /// * `static_files` - [`PathBuf`] static files directory
     pub static_files: PathBuf,
+}
+
+/// Contains informations that will be sent to the frontend directly
+#[derive(Clone, Debug, Deserialize)]
+pub struct Frontend {
+    /// * `presentation_text` - [`String`]Custom text describing the selection of cinemas
+    pub presentation_text: String,
 }
 
 /// Contain Server Configuration
