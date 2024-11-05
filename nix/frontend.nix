@@ -1,33 +1,10 @@
 { pkgs, ... }:
-{
-  presentation_text ? "Agregcine",
-}:
-
-let
-  config_json = pkgs.writeText "config.json" (
-    builtins.toJSON {
-      baseUrl = "/api/";
-      presentationText = presentation_text;
-    }
-  );
-
-  sourcesWithConfig = pkgs.stdenv.mkDerivation {
-    name = "agregcine_frontend_sources";
-    src = ../agregcine_frontend;
-
-    installPhase = ''
-      mkdir -p $out
-      cp -r $src/* $out
-      cp ${config_json} $out/config.json
-    '';
-  };
-in
 pkgs.buildNpmPackage {
   name = "agregcine_frontend";
-  src = sourcesWithConfig;
+  src = ../agregcine_frontend;
 
   npmDeps = pkgs.importNpmLock {
-    npmRoot = sourcesWithConfig;
+    npmRoot = ../agregcine_frontend;
   };
   npmConfigHook = pkgs.importNpmLock.npmConfigHook;
 

@@ -1,6 +1,6 @@
 {
   agregcine_backend,
-  mkAgregcine_frontend,
+  agregcine_frontend,
 }:
 {
   pkgs,
@@ -11,11 +11,6 @@
 {
   options.services.agregcine = {
     enable = lib.mkEnableOption "Enable agregcine";
-    presentationText = lib.mkOption {
-      type = lib.types.str;
-      default = "Agregcine";
-      description = "Text to display on the frontend";
-    };
     backendConfig = lib.mkOption {
       type = lib.types.attrsOf lib.types.anything;
       default = { };
@@ -25,10 +20,6 @@
 
   config = lib.mkIf config.services.agregcine.enable (
     let
-      agregcine_frontend = mkAgregcine_frontend {
-        presentation_text = config.services.agregcine.presentationText;
-      };
-
       agregcine_backend_config = pkgs.writeText "config.json" (
         builtins.toJSON (
           lib.recursiveUpdate config.services.agregcine.backendConfig {

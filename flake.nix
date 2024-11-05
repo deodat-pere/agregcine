@@ -36,10 +36,10 @@
             inherit pkgs;
           };
           packages.agregcine_backend = import ./nix/backend.nix { inherit pkgs crane; };
-          functions.mkAgregcine_frontend = import ./nix/frontend.nix { inherit pkgs; };
+          packages.agregcine_frontend = import ./nix/frontend.nix { inherit pkgs; };
           nixosModule = import ./nix/nixosModule.nix {
             agregcine_backend = packages.agregcine_backend;
-            mkAgregcine_frontend = functions.mkAgregcine_frontend;
+            agregcine_frontend = packages.agregcine_frontend;
           };
 
         }
@@ -47,9 +47,7 @@
       // {
         checks = {
           backend = self.packages.aarch64-linux.agregcine_backend;
-          frontend = self.functions.aarch64-linux.mkAgregcine_frontend {
-            presentation_text = "Découvrez les films diffusés à Rennes cette semaine!";
-          };
+          frontend = self.packages.aarch64-linux.agregcine_frontend;
         };
       }
     );
