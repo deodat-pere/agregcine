@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use reqwest::{Client, Error};
-use serde_json::Value;
+use serde_json::{Number, Value};
 use tracing::warn;
 
 use crate::config::Cinema;
@@ -98,6 +98,22 @@ pub(crate) fn build_movie(movie: &Value) -> InfoMovie {
         },
     };
 
+    let rating = match movie.get("stats").and_then(|t| t.get("userRating")) {
+        None => 0,
+        Some(t) => match get_number(t, "score") {
+            Err(_) => 0,
+            Ok(t) => (t.as_f64().unwrap() * 10.) as u32,
+        },
+    };
+
+    let mut genres = Vec::new();
+    for genre in get_array(movie, "genres").unwrap_or(&Vec::new()) {
+        match get_string(genre, "translate") {
+            Err(_) => {}
+            Ok(t) => genres.push(t.clone()),
+        }
+    }
+
     InfoMovie {
         title: get_string(movie, "title")
             .expect("We checked the title exists")
@@ -108,13 +124,15 @@ pub(crate) fn build_movie(movie: &Value) -> InfoMovie {
         image,
         is_new,
         is_premiere,
+        rating,
+        genres,
     }
 }
 
 pub(crate) fn build_showtimes(showtimes: &Value, cine: &Cinema) -> Vec<InfoSeance> {
     let mut hash_set = HashSet::new();
 
-    for tag in ["dubbed", "original", "local", "multiple"] {
+    for tag in ["dubbed", "original", "local"] {
         let mut vec: Vec<&String> = Vec::new();
         match get_array(showtimes, tag) {
             Err(_) => println!("Not found {tag}"),
@@ -131,6 +149,8 @@ pub(crate) fn build_showtimes(showtimes: &Value, cine: &Cinema) -> Vec<InfoSeanc
                 hash_set.insert(InfoSeance {
                     time: time.into(),
                     cine: cine.name.clone(),
+                    dubbed: tag == "dubbed",
+                    subtitled: tag == "original",
                 })
             })
             .collect::<Vec<_>>();
@@ -159,6 +179,13 @@ pub(crate) fn get_bool<'a>(val: &'a Value, tag: &'a str) -> Result<&'a bool, Ser
     }
 }
 
+pub(crate) fn get_number<'a>(val: &'a Value, tag: &'a str) -> Result<&'a Number, ServerError> {
+    match val.get(tag) {
+        Some(Value::Number(t)) => Ok(t),
+        _ => Err(ServerError::JsonParse),
+    }
+}
+
 #[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
 pub(crate) struct InfoMovie {
     pub(crate) title: String,
@@ -168,6 +195,8 @@ pub(crate) struct InfoMovie {
     pub(crate) image: String,
     pub(crate) is_new: bool,
     pub(crate) is_premiere: bool,
+    pub(crate) rating: u32,
+    pub(crate) genres: Vec<String>,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
@@ -180,4 +209,6 @@ pub(crate) struct InfoGlob {
 pub(crate) struct InfoSeance {
     pub(crate) time: String,
     pub(crate) cine: String,
+    pub(crate) dubbed: bool,
+    pub(crate) subtitled: bool,
 }

@@ -32,6 +32,8 @@ pub(crate) async fn get_movies(
             is_new: v.movie.is_new,
             is_premiere: v.movie.is_premiere,
             is_unique: { v.dates.len() == 1 },
+            rating: v.movie.rating,
+            genres: v.movie.genres.clone(),
         })
         .collect();
     Ok(Json(movies))
@@ -42,7 +44,7 @@ pub(crate) async fn get_movie_by_id(
     Path(id): Path<u32>,
 ) -> Result<Json<Movie>, StatusCode> {
     let mov = state.movies.lock().map_err(|e| {
-        warn!("Rout get_movie_by_id: Could not lock movies Mutex {e}");
+        warn!("Route get_movie_by_id: Could not lock movies Mutex {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
     let movie = mov.get(&id).ok_or(StatusCode::NOT_FOUND).map(|m| Movie {
@@ -55,6 +57,8 @@ pub(crate) async fn get_movie_by_id(
         is_new: m.movie.is_new,
         is_premiere: m.movie.is_premiere,
         is_unique: { m.dates.len() == 1 },
+        rating: m.movie.rating,
+        genres: m.movie.genres.clone(),
     })?;
     Ok(Json(movie))
 }
@@ -70,6 +74,33 @@ pub(crate) struct Movie {
     is_new: bool,
     is_premiere: bool,
     is_unique: bool,
+    rating: u32,
+    genres: Vec<String>,
+}
+
+pub(crate) async fn get_all_times(
+    State(state): State<ServerState>,
+) -> Result<Json<Vec<IDedSeance>>, StatusCode> {
+    let mov = state.movies.lock().map_err(|e| {
+        warn!("Route get_all_times: Could not lock movies Mutex {e}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
+    let seances = mov
+        .iter()
+        .flat_map(|(k, v)| {
+            v.dates.iter().map(|seance| IDedSeance {
+                id: *k,
+                seance: seance.clone(),
+            })
+        })
+        .collect::<Vec<_>>();
+    Ok(Json(seances))
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub(crate) struct IDedSeance {
+    id: u32,
+    seance: InfoSeance,
 }
 
 pub(crate) async fn get_showings(
@@ -83,12 +114,6 @@ pub(crate) async fn get_showings(
 
     let seances = mov.get(&id).ok_or(StatusCode::NOT_FOUND)?.dates.clone();
     Ok(Json(seances))
-}
-
-#[derive(Serialize, Deserialize)]
-pub(crate) struct Showing {
-    cine: String,
-    time: String,
 }
 
 pub(crate) async fn get_presentation_text(

@@ -9,7 +9,9 @@ use tower_http::services::{ServeDir, ServeFile};
 
 use crate::config::{Config, Frontend};
 use crate::error::ServerError;
-use crate::route::{get_movie_by_id, get_movies, get_presentation_text, get_showings, up};
+use crate::route::{
+    get_all_times, get_movie_by_id, get_movies, get_presentation_text, get_showings, up,
+};
 use crate::scraper::extract::InfoGlob;
 
 /// Create a TCP listener and call [`spawn_server_with_listener`]
@@ -58,6 +60,7 @@ pub async fn spawn_server_with_listener(
         .route("/showings/:id", get(get_showings))
         .route("/movie/:id", get(get_movie_by_id))
         .route("/presentation_text", get(get_presentation_text))
+        .route("/all_times", get(get_all_times))
         .with_state(state);
 
     let cors = CorsLayer::new()
@@ -80,7 +83,8 @@ pub async fn spawn_server_with_listener(
         .nest("/api", routes)
         .layer(cors)
         .nest_service("/", static_dir.clone())
-        .nest_service("/movie/:id", static_dir);
+        .nest_service("/movie/:id", static_dir.clone())
+        .nest_service("/timeline", static_dir);
 
     println!("Running...");
     tracing::info!("Running...");

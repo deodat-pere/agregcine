@@ -18,6 +18,8 @@ export type MovieProps = {
     is_new: boolean,
     is_premiere: boolean,
     is_unique: boolean,
+    rating: number,
+    genres: Array<string>
 }
 
 export type AlbumProps = {

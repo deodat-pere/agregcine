@@ -5,12 +5,24 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { MovieProps } from '../HomePage/Album';
 import { get_image } from '../utils';
+import Chip from '@mui/material/Chip';
+import { useEffect, useState } from 'react';
 
 export type MovieDescriptionProps = {
     movie: MovieProps,
 }
 
 export default function MovieDescription(props: MovieDescriptionProps) {
+
+    const [timeAndStars, setTimeAndStars] = useState<string>("");
+
+    useEffect(() => {
+        if (props.movie.id == -1) {
+            setTimeAndStars("")
+        } else {
+            setTimeAndStars(props.movie.runtime + " - " + props.movie.rating / 10 + "/5⭐")
+        }
+    }, [props]);
 
     return (
         <Box
@@ -47,10 +59,15 @@ export default function MovieDescription(props: MovieDescriptionProps) {
                             </Typography>
                         </Box>
                         <Box>
-                            <Typography color="text.secondary">
-                                {props.movie.runtime}
-                            </Typography>
 
+                            <Typography color="text.secondary">
+                                {timeAndStars}
+                            </Typography>
+                            <Box>
+                                {props.movie.genres.map((cat: string) => (
+                                    <Chip label={cat} sx={{ mt: 1, marginRight: 1 }} />
+                                ))}
+                            </Box>
                             <Typography> <div dangerouslySetInnerHTML={{ __html: props.movie.summary }} /> </Typography>
                         </Box>
                     </Box>

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import Chip from '@mui/material/Chip';
 
 export type MovieDescriptionProps = {
     movie: MovieProps,
@@ -51,8 +52,13 @@ export default function MovieDescription(props: MovieDescriptionProps) {
                     </Box>
                 </Box>
                 <Typography color="text.secondary">
-                    {props.movie.runtime}
+                    {props.movie.runtime} - {props.movie.rating / 10}/5⭐
                 </Typography>
+                <Box>
+                    {props.movie.genres.map((cat: string) => (
+                        <Chip label={cat} sx={{ mt: 1, marginRight: 1 }} />
+                    ))}
+                </Box>
                 <Typography> <div dangerouslySetInnerHTML={{ __html: props.movie.summary }} /> </Typography>
 
                 <Box display="flex" flexDirection='row-reverse'>
