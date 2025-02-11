@@ -27,24 +27,18 @@ export default function TimelinePage() {
 
     const [movies, setMovies] = useState<MovieProps[]>([]);
 
-    useEffect(() => {
-        const api = async () => {
-            const data = await fetch(baseUrl + "movies", {
-                method: "GET"
-            });
-            const jsonData: MovieProps[] = await data.json();
-            const ordered = jsonData.sort((a, b) => (a.id - b.id));
-            setMovies(ordered);
-        };
-
-        api();
-    }, []);
-
     const [seances, setSeances] = useState<DayedSeances[]>([]);
     const [days, setDays] = useState<string[]>([])
 
     useEffect(() => {
         const api = async () => {
+            const data2 = await fetch(baseUrl + "movies", {
+                method: "GET"
+            });
+            const jsonData2: MovieProps[] = await data2.json();
+            const ordered = jsonData2.sort((a, b) => (a.id - b.id));
+            setMovies(ordered);
+
             const data = await fetch(baseUrl + "all_times", {
                 method: "GET"
             });
