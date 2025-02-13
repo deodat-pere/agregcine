@@ -1,9 +1,7 @@
 import Grid from '@mui/material/Grid2';
 import Container from '@mui/material/Container';
-import { useState, useEffect } from 'react';
-import { baseUrl } from '../App';
-import { filters } from './FilterSelector';
 import MovieCard from './MovieCard';
+import { getMovies } from '../structTransform';
 
 
 
@@ -26,20 +24,16 @@ export type AlbumProps = {
     filterId: number,
 }
 
+const filters = [
+    (_: MovieProps) => (true),
+    (movie: MovieProps) => (movie.is_new),
+    (movie: MovieProps) => (movie.is_unique),
+    (movie: MovieProps) => (movie.is_premiere),
+]
+
 export default function Album(props: AlbumProps) {
-    const [movies, setMovies] = useState<MovieProps[]>([]);
+    const movies = getMovies();
 
-    useEffect(() => {
-        const api = async () => {
-            const data = await fetch(baseUrl + "movies", {
-                method: "GET"
-            });
-            const jsonData = await data.json();
-            setMovies(jsonData);
-        };
-
-        api();
-    }, []);
     return (
         <Container sx={{ py: 8 }} maxWidth="md">
             <Grid container spacing={1.5} columns={{ xs: 4, sm: 8, md: 12 }}>

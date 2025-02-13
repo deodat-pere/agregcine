@@ -10,8 +10,6 @@ import { useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import theme from './theme';
 
-export const baseUrl = "/api/"
-
 type MenuPage = {
   title: string,
   path: string,

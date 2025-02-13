@@ -1,20 +1,13 @@
 import Box from '@mui/material/Box';
 import { Button, Paper } from '@mui/material';
-import { MovieProps } from './Album';
 
 export type FilterSelectorProps = {
     id: number,
     setId: React.Dispatch<React.SetStateAction<number>>
 }
 
-//export function noFilter(_v: MovieProps, _i: number, _a: MovieProps[]): boolean { return true }
 
-export const filters = [
-    (_: MovieProps) => (true),
-    (movie: MovieProps) => (movie.is_new),
-    (movie: MovieProps) => (movie.is_unique),
-    (movie: MovieProps) => (movie.is_premiere),
-]
+
 
 const ClickedSx = {
     marginLeft: 2,
@@ -51,7 +44,7 @@ export default function FilterSelector(props: FilterSelectorProps): JSX.Element 
     return (
         <Box display={"flex"} flexDirection={"row"} flexWrap={"wrap"} width="lg" justifyContent={"center"}>
             {Array.from(Array(opt_len).keys()).map((id: number) => (
-                <Paper sx={get_button_style(props.id, id)}>
+                <Paper sx={get_button_style(props.id, id)} key={id}>
                     <Button sx={{
                         color: "text.primary"
                     }}

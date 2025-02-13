@@ -1,7 +1,6 @@
 import { Typography, Container, Divider, Box, Card, Chip } from "@mui/material";
-import { useEffect, useState } from "react";
-import { baseUrl } from "../App";
 import { parse_date, parse_hour } from "../utils";
+import { seanceById } from "../structTransform";
 
 export type ShowingsListProps = {
     id: string
@@ -21,24 +20,12 @@ export type ShowingProps = {
     subtitled: boolean,
 }
 
-export default function ShowingsList(Props: ShowingsListProps) {
-    const [showings, setShowings] = useState<ShowingProps[]>([]);
+export default function ShowingsList(props: ShowingsListProps) {
+    var showings: ShowingProps[] | null = null;
 
-    useEffect(() => {
-        const api = async () => {
-
-            const data = await fetch(baseUrl + "showings/" + Props.id, {
-                method: "GET"
-            });
-            if (data.ok) {
-                const jsonData = await data.json();
-                setShowings(jsonData);
-            }
-
-        };
-
-        api();
-    }, []);
+    if (Number(props.id)) {
+        showings = seanceById(Number(props.id))
+    }
 
     if (showings) {
         let mappings: Map<string, PrettyShow[]> = new Map;
