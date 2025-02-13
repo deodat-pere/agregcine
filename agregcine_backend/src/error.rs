@@ -6,5 +6,4 @@ pub(crate) enum ServerError {
     File,
     AddrBind,
     ServerRun,
-    MutexLock,
 }

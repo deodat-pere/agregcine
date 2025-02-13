@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 
 use chrono::NaiveDateTime;
@@ -8,14 +7,14 @@ use tracing::{info, warn};
 
 use crate::{config::Config, error::ServerError};
 
-use super::{extract::InfoGlob, scrape_cines::parse_all};
+use super::{extract::InfoSeance, scrape_cines::parse_all};
 
-pub async fn wait(reload: bool, config: Config, movies_mutex: Arc<Mutex<HashMap<u32, InfoGlob>>>) {
+pub async fn wait(reload: bool, config: Config) {
     // Check if the database is empty
     let empty = refresh_movies(&config.database.file).is_empty();
 
     if reload || empty {
-        match refresh(&config, movies_mutex.clone()).await {
+        match refresh(&config).await {
             Ok(_) => (),
             Err(e) => warn!("Failed refresh: {e:?}"),
         };
@@ -38,17 +37,14 @@ pub async fn wait(reload: bool, config: Config, movies_mutex: Arc<Mutex<HashMap<
 
         sleep(duration);
 
-        match refresh(&config, movies_mutex.clone()).await {
+        match refresh(&config).await {
             Ok(_) => (),
             Err(e) => warn!("Failed refresh: {e:?}"),
         };
     }
 }
 
-pub async fn refresh(
-    config: &Config,
-    movies_mutex: Arc<Mutex<HashMap<u32, InfoGlob>>>,
-) -> Result<(), ServerError> {
+pub async fn refresh(config: &Config) -> Result<(), ServerError> {
     let infos_glob = parse_all(config).await.unwrap();
 
     let time = chrono::Utc::now()
@@ -56,26 +52,35 @@ pub async fn refresh(
         .and_hms_opt(0, 0, 0)
         .unwrap();
 
-    let stored_infos = StoredInfos {
-        time,
-        movies: infos_glob,
-    };
+    let mut movies = Vec::new();
+    for (id, (_, info)) in infos_glob.into_iter().enumerate() {
+        movies.push(DetailedInfo {
+            movie: DetailedMovie {
+                id: id as u32,
+                runtime: info.movie.duration,
+                name: info.movie.title,
+                image_link: info.movie.image,
+                summary: info.movie.summary,
+                release_date: info.movie.release,
+                is_new: info.movie.is_new,
+                is_premiere: info.movie.is_premiere,
+                is_unique: (info.dates.len() == 1),
+                rating: info.movie.rating,
+                genres: info.movie.genres,
+            },
+            dates: info.dates.clone(),
+        });
+    }
+
+    let stored_infos = StoredInfos { time, movies };
     let json = serde_json::to_string(&stored_infos).unwrap();
     let _ = std::fs::write(&config.database.file, json)
         .inspect_err(|e| warn!("Failed to write to the store: {e}"));
 
-    let mut m = movies_mutex.lock().map_err(|_| ServerError::MutexLock)?;
-
-    let mut movies = HashMap::new();
-    for (id, (_, info)) in stored_infos.movies.into_iter().enumerate() {
-        movies.insert(id as u32, info);
-    }
-    *m = movies;
-
     Ok(())
 }
 
-pub(crate) fn refresh_movies(store: &String) -> HashMap<u32, InfoGlob> {
+pub(crate) fn refresh_movies(store: &String) -> HashMap<u32, DetailedInfo> {
     let mut res = HashMap::new();
     if let Ok(json) = std::fs::read_to_string(store) {
         let stored_infos: StoredInfos = serde_json::from_str(&json)
@@ -93,7 +98,7 @@ pub(crate) fn refresh_movies(store: &String) -> HashMap<u32, InfoGlob> {
         }
 
         let mut id = 0;
-        for (_, info) in stored_infos.movies {
+        for info in stored_infos.movies {
             res.insert(id, info);
             id += 1;
         }
@@ -108,5 +113,26 @@ struct StoredInfos {
     /// time in ms since epoch of the last scrape day
     pub time: NaiveDateTime,
     /// All the scraped movies
-    pub movies: HashMap<String, InfoGlob>,
+    pub movies: Vec<DetailedInfo>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub(crate) struct DetailedMovie {
+    id: u32,
+    runtime: String,
+    name: String,
+    image_link: String,
+    summary: String,
+    release_date: String,
+    is_new: bool,
+    is_premiere: bool,
+    is_unique: bool,
+    rating: u32,
+    genres: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub(crate) struct DetailedInfo {
+    pub(crate) movie: DetailedMovie,
+    pub(crate) dates: Vec<InfoSeance>,
 }
