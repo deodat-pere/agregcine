@@ -1,51 +1,74 @@
 # Agregcine
-## Un projet pour agréger des cinés
+## Un projet pour agréger des cinémas
 
-Ce projet permet de déployer un site internet qui présente les films diffusés dans les 7 prochains jours dans une liste de cinémas présents sur Allociné à paramétrer.
+Ce projet permet de déployer un site internet présentant les films diffusés dans les 7 prochains jours dans une liste de cinémas présents sur Allociné.
 
-Ce readme a pour objectif d'expliquer les fichiers de configuration, et de présenter comment lancer simplement le site en local.
+## Architecture
 
-## Configuration du front
+Le projet est composé de deux parties :
 
-Par défaut, en dev, les requêtes à l'api seront faites à http://localhost:3000/, et en build sur la même URL que le serveur statique. Ce comportement peut etre modifié dans `agregcine_frontend/cite.config.ts`.
+- **`scraper/`** : Un scraper Rust qui interroge Allociné et produit un fichier `movies.json`. Conçu pour être lancé quotidiennement (cron ou GitHub Actions).
+- **`frontend/`** : Une SPA React/TypeScript (Vite + MUI). Elle charge les données depuis une URL distante définie dans `frontend/src/structTransform.ts`.
 
-## Configuration du back
+Il n'y a **pas de serveur applicatif** : le frontend est servi statiquement (GitHub Pages, nginx, etc.).
 
-Le fichier de configuration à écrire est `agregcine_backend/config.json`. Un fichier `agregcine_backend/config-sample.json` est également présent dans le repo pour exemple. Par défaut, le fichier de config utilisé sera `./config.json`, cependant il est possible de passer le chemin vers un fichier de configuration arbitraire avec l'argument `-p`.
+## Configuration du scraper
 
-Structure du fichier de config: 
-|__server (configuration serveur)
-|  |__address: string (adresse IP du serveur)
-|  |__port: number (port sur lequel écouter)
-|  |__static_files: string (chemin vers les fichiers statiques à servir)
-|
-|__frontend (éléments à envoyer directement au frontend)
-|  |__presentation_text: string (texte expliquant quels cinémas sont agrégés)
-|
-|__database (configuration du fichier de base de donnée ou sont stockées les infos scrappées)
-|  |__file: string (chemin vers le fichier (json) de base de donnée, droits d'écritures nécessaires)
-|
-|__log (configuration des logs du serveur)
-|  |__dir: string (chemin vers le dossier de logs, droits d'écriture necessaires)
-|  |__level: string (DEBUG,INFO,WARN,ERROR)
-|
-|__cinemas (tableau d'objets de description de cinés à scrapper)
-   |__id: string (id du cinéma dans l'URL allociné)
-   |__name: string (nom du cinéma à afficher)
+Créez `scraper/config.json` (gitignore) en vous basant sur la structure suivante :
 
-## Lancer le serveur simplement en local
+```json
+{
+  "database": { "file": "movies.json" },
+  "log": { "level": "INFO" },
+  "cinemas": [
+    { "id": "C0125", "name": "Mon Cinéma" }
+  ]
+}
+```
 
-Le fichier de config fourni en exemple vous permets de lancer le site en local. Recopiez son contenu dans `agregcine_backend/config.json`.
+L'identifiant `id` correspond à l'identifiant du cinéma dans les URLs Allociné.
 
-Lancez le script install.sh pour construire le front et compiler le back.
-Déplacez vous dans agregcine_backend puis lancez target/release/agregcine_backend.
-Dans le dossier logs vous devriez voir l'avancement du scrapping.
-Une fois le scrapping fini, le site devrait afficher les films sur le port spécifié.
+## Configuration du frontend
 
-## Détails d'implémentation
+L'URL de chargement des données est définie dans `frontend/src/structTransform.ts` :
 
-A chaque fois qu'il commence a scrapper, le serveur fait sept requêtes a Allociné par cinéma spécifié.
+```ts
+const MOVIES_URL = 'https://...';
+```
 
-Par défaut, un scrappage sera lancé au lancement du serveur si le fichier de base de donnée n'existe pas, est vide, ou si la structure des données n'est pas bonne. Il est possible de forcer un scrappage en passant le flag -r au serveur.
+Adaptez cette URL pour pointer vers votre propre fichier `movies.json` accessible publiquement.
 
-Une fois le serveur lancé, Allociné sera scrappé chaque jour a 00:01 UTC.
+## Déploiement standalone (à la racine)
+
+```bash
+cd scraper && cargo build && target/debug/scraper
+cd frontend && npm install && npm run build
+cp scraper/movies.json frontend/dist/assets/
+# Servir frontend/dist/
+```
+
+## Intégration sous un préfixe (ex: /cinema)
+
+Ce projet peut être intégré dans un site existant sous un sous-chemin. Il suffit de passer le flag `--base` à Vite :
+
+```bash
+cd frontend && npm run build -- --base=/cinema/
+```
+
+Les assets seront alors référencés sous `/cinema/assets/...`.
+
+**Note :** pour que la navigation interne fonctionne correctement, il faut également ajouter `basename="/cinema"` au `<BrowserRouter>` dans `frontend/src/App.tsx`.
+
+## Lancer en local
+
+```bash
+# Lancer le scraper
+cd scraper
+# Créer config.json si pas encore fait
+cargo run
+
+# Dans un autre terminal, démarrer le dev server
+cd frontend
+npm install
+npm run dev
+```
