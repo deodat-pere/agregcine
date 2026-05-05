@@ -71,9 +71,7 @@ export default function MovieCard({props, selectedProfile}: {props: MovieProps, 
                         }
                     }}
                     image={get_image(props.image_link)}
-                    href={"/movie/" + props.id.toString()}
-                    onClick={() => routeChange()
-                    }
+                    onClick={() => routeChange()}
                 />
             </Tooltip>
             <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", }}>
