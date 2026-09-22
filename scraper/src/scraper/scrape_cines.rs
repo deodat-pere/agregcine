@@ -45,7 +45,7 @@ pub(crate) fn parse_one_cine<'a>(
     let day_tags = gen_day_tags()?;
     for day_tag in day_tags {
         parse_one_day(cine, &day_tag, dict)?;
-        let dur = Duration::from_millis(500);
+        let dur = Duration::from_millis(1000);
         sleep(dur);
     }
     Ok(dict)
